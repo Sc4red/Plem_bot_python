@@ -11,7 +11,7 @@ from selenium.webdriver.common.by import By  # todo import By for XPATH
 import time
 from selenium.webdriver.common.keys import Keys
 
-import schedule
+
 
 
 class PlemionaBot(QMainWindow):  # todo main class plemiona
@@ -26,32 +26,18 @@ class PlemionaBot(QMainWindow):  # todo main class plemiona
 
         self.setCentralWidget(self.main_widget)
         self.widget = Widget()
-        self.thrend1 = MyThread1()
-        if self.thrend1.isRunning():
-            self.thrend1.exiting = True
-            while self.thrend1.isRunning():
-                time.sleep(0.01)
-                continue
-            #self.widget.time_Input.setText("123")
-        else:
-            self.thrend1.exiting = False
-            self.thrend1.start()
-            while not self.thrend1.isRunning():
-                time.sleep(0.01)
-                continue
-            #self.widget.time_Input.setText("321")
-        #self.thrend1.started.connect(self.printed)
+
 
     def printed(self):
         self.widget.time_Input.setText("123")
 
-
+hour = ""
+minute = ""
 class Widget(QWidget):
     def __init__(self, parent=None):
         super(Widget, self).__init__()
         self.time_Box = QGroupBox("TIME")
         self.time_Input = QLineEdit()
-        self.bot = ParametersPlemiona()
         self.button_Wedge = QPushButton("Wedge")
         self.input_Millisecond = QLineEdit()
         self.input_Second = QLineEdit()
@@ -79,22 +65,43 @@ class Widget(QWidget):
         username = self.username_Input.text()
         password = self.password_Input.text()
         world = self.world_Input.text()
-        self.bot.signIn(username, password, world)
+        ParametersPlemiona.signIn(username, password, world)
         #self.thrend1.started.connect(self.printed)
         #self.thrend1.started.connect(self.timerApp)
         # self.timerApp()
         # self.connect(self.thrend1, QtCore.SIGNAL('log1(QString)'), self.time_Input.setText)
         # self.time_Input.setText(self.bot.getTime())
 
+
+
     def buttonWedge(self):
-        hour = self.input_Hour.text()
-        minute = self.input_Minute.text()
-        second = self.input_Second.text()
-        millisecond = self.input_Millisecond.text()
+        global hourr, minutee, secondd, millisecondd
+        hourr= self.input_Hour.text()
+        minutee = self.input_Minute.text()
+        secondd = self.input_Second.text()
+        millisecondd = self.input_Millisecond.text()
+
+
+
+        self.thrend1 = MyThread1()
+        if self.thrend1.isRunning():
+            self.thrend1.exiting = True
+            while self.thrend1.isRunning():
+                time.sleep(0.01)
+                continue
+            # self.widget.time_Input.setText("123")
+        else:
+            self.thrend1.exiting = False
+            self.thrend1.start()
+            while not self.thrend1.isRunning():
+                time.sleep(0.01)
+                continue
+
+
 
     def timerApp(self):
         self.time_Input.clear()
-        self.time_Input.setText(self.bot.getTime)
+        self.time_Input.setText(ParametersPlemiona.getTime())
         # self.thrend1.on_source(self, self.bot.getTime)
 
     def createLeyoutLogin(self):
@@ -106,7 +113,7 @@ class Widget(QWidget):
 
         self.password_Input.setEchoMode(2)  # Hasło zasłonięte
 
-        # self.button_Login.setCheckable(True)
+         #self.button_Login.setCheckable(True)
         self.button_Login.clicked.connect(self.buttonLogin)
 
         grid_layout.addWidget(username_label, 0, 0)
@@ -128,7 +135,7 @@ class Widget(QWidget):
         millisecond_label = QLabel("MILLISECOND(000)")
 
         self.button_Wedge.setCheckable(True)
-        # self.button_Wedge.clicked.connect(self.buttonStatus)
+        self.button_Wedge.clicked.connect(self.buttonWedge)
 
         grid_layout.addWidget(hour_label, 0, 0)
         grid_layout.addWidget(self.input_Hour, 1, 0)
@@ -159,24 +166,24 @@ class MyThread1(QThread):
         self.exiting = False
 
     def run(self):
-        while self.exiting == False:
-            sys.stdout.write('.')
-            sys.stdout.flush()
-            time.sleep(1)
+       # while self.exiting == False:
+        ParametersPlemiona.wedge()
+           # time.sleep(1)
+        QThread.exiting = True
 
 
-class ParametersPlemiona():
-    def __init__(self):
-        self.browser = None
 
-    def signIn(self, username, password, world):
-        self.browser = webdriver.Chrome()
-        self.browser.get('https://www.plemiona.pl/')
-        # time.sleep(1)
+browser = webdriver.Chrome()
+class ParametersPlemiona:
 
-        usernameInput = self.browser.find_elements_by_css_selector('input')[1]
-        passwordInput = self.browser.find_elements_by_css_selector('input')[3]
-        buttonLogin = self.browser.find_element(By.XPATH,
+    def signIn(username, password, world):
+
+        browser.get('https://www.plemiona.pl/')
+        time.sleep(2)
+
+        usernameInput = browser.find_elements_by_css_selector('input')[1]
+        passwordInput = browser.find_elements_by_css_selector('input')[3]
+        buttonLogin = browser.find_element(By.XPATH,
                                                 '/html/body/div[3]/div[4]/div[10]/div[3]/div[2]/form/div/div/a')
         # usernameInput = self.browser.find_element_by_name("username")
         # passwordInput = self.browser.find_element_by_name("password")
@@ -185,34 +192,53 @@ class ParametersPlemiona():
         passwordInput.send_keys(password)
         # passwordInput.send_keys(Keys.ENTER)
         buttonLogin.click()
-        time.sleep(0.5)
+        time.sleep(2)
+
+
 
         # worldInput = self.browser.find_element(By.XPATH,"/html/body/div[3]/div[4]/div[10]/div[3]/div[2]/div[1]/a[3]/span")
         # worldInput = self.browser.find_element(By.XPATH,"//a[@href='/page/play/pl152']")
-        self.browser.get('https://www.plemiona.pl/' + 'page/play/pl' + world)
-        '''
-        # worldInput.click()
-        time.sleep(2)
-        self.browser.get('https://pl' + world1 + '.plemiona.pl' + '/game.php?village=&screen=barracks')
-        time.sleep(1)
-        # koszary = self.browser.find_element(By.XPATH,'/game.php?village=26574&screen=barracks').click()
-        #axemenInput = browser1.find_element(By.XPATH, "//*[@id='axe_0']")
-        #axemenInput.send_keys(10)
-        #buttonRecruitment = buttonLogin = browser1.find_element(By.XPATH,'/html/body/table/tbody/tr[2]/td[2]/table[2]/tbody/tr/td/table/tbody/tr/td/table/tbody/tr/td/form/table/tbody/tr[5]/td[2]/input')
-        #buttonRecruitment.click()
-        '''
+        browser.get('https://www.plemiona.pl/' + 'page/play/pl' + world)
 
-    def getTime(self):
-        timer = self.browser.find_element(By.XPATH, "//*[@id='serverTime']")
+        time.sleep(0.5)
+
+
+
+
+
+
+    def getTime():
+        timer = browser.find_element(By.XPATH, "//*[@id='serverTime']")
         text = timer.text
         return text
 
-    def wedge(self, hour, minute, second, millisecond):
-        return 0
+    def getTimeAttack():
+        timer = browser.find_element(By.XPATH, "/html/body/div[13]/div[1]/div/form/div[1]/table/tbody/tr[4]/td[2]/span")
+        text = timer.text
+        textlen = len(text)
+        hour = text[textlen - 8] + text[textlen - 7] + text[textlen - 6] + text[textlen - 5] + text[textlen - 4] + text[
+            textlen - 3] + text[textlen - 2] + text[textlen - 1]
+        return hour
+
+
+    def wedge():
+        wysylam = True
+        hour2 = hourr + ":" + minutee + ":" + secondd
+        mili = float(millisecondd)/1000
+        while wysylam:
+            time.sleep(0.001)
+            if ParametersPlemiona.getTimeAttack()==hour2:
+                time.sleep(mili)
+                browser.find_element(By.XPATH, "// *[ @ id = 'troop_confirm_go']").click()
+                wysylam = False
+
+
+
+
+
 
 
 # bot.signin()
-schedule.run_pending()
 app = QApplication(sys.argv)
 bot = PlemionaBot()
 bot.show()

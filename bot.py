@@ -75,10 +75,11 @@ class Widget(QWidget):
 
 
     def buttonWedge(self):
-        hour = self.input_Hour.text()
-        minute = self.input_Minute.text()
-        second = self.input_Second.text()
-        millisecond = self.input_Millisecond.text()
+        global hourr, minutee, secondd, millisecondd
+        hourr= self.input_Hour.text()
+        minutee = self.input_Minute.text()
+        secondd = self.input_Second.text()
+        millisecondd = self.input_Millisecond.text()
 
 
 
@@ -165,10 +166,11 @@ class MyThread1(QThread):
         self.exiting = False
 
     def run(self):
-        while self.exiting == False:
-            sys.stdout.write(ParametersPlemiona.wedge())
-            sys.stdout.flush()
-            time.sleep(1)
+       # while self.exiting == False:
+        ParametersPlemiona.wedge()
+           # time.sleep(1)
+        QThread.exiting = True
+
 
 
 browser = webdriver.Chrome()
@@ -210,21 +212,30 @@ class ParametersPlemiona:
         text = timer.text
         return text
 
-    #hour, minute, second, millisecond
-    def wedge(self, hour, minute, second, millisecond):
-
-        timer = hour+':'+minute+':'+second
-
-        return timer
-
-
-    def wegeTime():
+    def getTimeAttack():
         timer = browser.find_element(By.XPATH, "/html/body/div[13]/div[1]/div/form/div[1]/table/tbody/tr[4]/td[2]/span")
         text = timer.text
         textlen = len(text)
-        hour = text[textlen-8]+text[textlen-7]+text[textlen-6]+text[textlen-5]+text[textlen-4]+text[textlen-3]+text[textlen-2]+text[textlen-1]
-
+        hour = text[textlen - 8] + text[textlen - 7] + text[textlen - 6] + text[textlen - 5] + text[textlen - 4] + text[
+            textlen - 3] + text[textlen - 2] + text[textlen - 1]
         return hour
+
+
+    def wedge():
+        wysylam = True
+        hour2 = hourr + ":" + minutee + ":" + secondd
+        mili = float(millisecondd)/1000
+        while wysylam:
+            time.sleep(0.001)
+            if ParametersPlemiona.getTimeAttack()==hour2:
+                time.sleep(mili)
+                browser.find_element(By.XPATH, "// *[ @ id = 'troop_confirm_go']").click()
+                wysylam = False
+
+
+
+
+
 
 
 # bot.signin()

@@ -203,6 +203,7 @@ class MyThread2(QThread):  # todo klasa odpowiedzialna za wywołanie klina
         # while self.exiting == False:
         self.bot.wedge(self.hour, self.minute, self.second, self.millisecond)
         self.exiting = True
+        self.exit()
 
 
 class ParametersPlemiona:  # todo klasa w której analizowane są parametryw  przeglądarce a następnie poddawane obróbce

@@ -239,33 +239,26 @@ class ParametersPlemiona:
         '''
 
     def getTimeAttack(self):
-        timer = self.browser.find_element(By.XPATH, "/html/body/div[13]/div[1]/div/form/div[1]/table/tbody/tr[4]/td[2]/span")
+        timer = self.browser.find_element_by_class_name('relative_time')
         text = timer.text
         textlen = len(text)
         hour = text[textlen - 8] + text[textlen - 7] + text[textlen - 6] + text[textlen - 5] + text[textlen - 4] + text[textlen - 3] + text[textlen - 2] + text[textlen - 1]
         return hour
 
     def getTime(self):
-        timer = self.browser.find_element(By.XPATH, "//*[@id='serverTime']")
+        timer = self.browser.find_element_by_id('serverTime')
         text = timer.text
         return str(text)
 
     def wedge(self, hour, minute, second, millisecond):
         wysylam = True
-
         hour2 = hour + ":" + minute + ":" + second
-
         mili = float(millisecond) / 1000
-
         while wysylam:
-
             time.sleep(0.001)
-
             if self.getTimeAttack() == hour2:
                 time.sleep(mili)
-
-                self.browser.find_element(By.XPATH, "// *[ @ id = 'troop_confirm_go']").click()
-
+                self.browser.find_element_by_id('troop_confirm_go').click()
                 wysylam = False
 
 

@@ -7,12 +7,13 @@ from PyQt5.uic.properties import QtCore
 
 from selenium import webdriver  # todo import webdriver
 from selenium.webdriver.common.by import By  # todo import By for XPATH
+from selenium.common.exceptions import NoSuchElementException
 
 import time
 from selenium.webdriver.common.keys import Keys
 
 
-class PlemionaBot(QMainWindow):  # todo main class plemiona
+class PlemionaBot(QMainWindow):  # todo klasa odpowiada za wywołąnie wszystkich elementów okna MainWindow
     def __init__(self):
         super(PlemionaBot, self).__init__()
         self.main_widget = Widget(self)
@@ -32,7 +33,7 @@ class PlemionaBot(QMainWindow):  # todo main class plemiona
         self.widget.time_Input.setText("123")
 
 
-class Widget(QWidget):
+class Widget(QWidget):  # todo ustawianie ukąłdu widgetów oraz ich funkcji
     def __init__(self, parent=None):
         super(Widget, self).__init__()
 
@@ -54,7 +55,7 @@ class Widget(QWidget):
         self.createLeyoutWedge()
         self.createLeyoutTime()
         self.thread1 = MyThread1(self.time_Input, self.bot)
-        #self.thread1.started.connect(self.printed)
+        # self.thread1.started.connect(self.printed)
 
         box = QGridLayout()
         box.addWidget(self.login_Box, 0, 0, 2, 12)
@@ -72,7 +73,7 @@ class Widget(QWidget):
         password = self.password_Input.text()
         world = self.world_Input.text()
         self.bot.signIn(username, password, world)
-        #self.thrend1.terminated.connect(self.printed)
+        # self.thrend1.terminated.connect(self.printed)
         # self.thrend1.started.connect(self.timerApp)
         # self.timerApp()
         # self.connect(self.thrend1, QtCore.SIGNAL('log1(QString)'), self.time_Input.setText)
@@ -171,23 +172,24 @@ class Widget(QWidget):
         self.time_Box.setLayout(grid_layout)
 
 
-class MyThread1(QThread):
+class MyThread1(QThread):  # todo klasa odpowiedzialna za aktualizacje czasu w aplikacji
     sig1 = pyqtSignal(str)
 
     def __init__(self, input, bot, parent=None):
         QThread.__init__(self, parent)
-        self.inputt = input
+        self.input = input
         self.bot = bot
         self.exiting = False
 
     def run(self):
         while self.exiting == False:
-            self.inputt.setText(self.bot.getTime())
-            #sys.stdout.write('*')
-            #sys.stdout.flush()
+            self.input.setText(self.bot.getTime())
+            # sys.stdout.write('*')
+            # sys.stdout.flush()
             time.sleep(1)
 
-class MyThread2(QThread):
+
+class MyThread2(QThread):  # todo klasa odpowiedzialna za wywołanie klina
     def __init__(self, bot, hour, minute, second, millisecond, parent=None):
         QThread.__init__(self, parent)
         self.bot = bot
@@ -198,11 +200,12 @@ class MyThread2(QThread):
         self.exiting = False
 
     def run(self):
-        #while self.exiting == False:
+        # while self.exiting == False:
         self.bot.wedge(self.hour, self.minute, self.second, self.millisecond)
         self.exiting = True
 
-class ParametersPlemiona:
+
+class ParametersPlemiona:  # todo klasa w której analizowane są parametryw  przeglądarce a następnie poddawane obróbce
     def __init__(self):
         self.browser = None
 
@@ -213,7 +216,8 @@ class ParametersPlemiona:
 
         usernameInput = self.browser.find_elements_by_css_selector('input')[1]
         passwordInput = self.browser.find_elements_by_css_selector('input')[3]
-        buttonLogin = self.browser.find_element(By.XPATH,'/html/body/div[3]/div[4]/div[10]/div[3]/div[2]/form/div/div/a')
+        buttonLogin = self.browser.find_element(By.XPATH,
+                                                '/html/body/div[3]/div[4]/div[10]/div[3]/div[2]/form/div/div/a')
         # usernameInput = self.browser.find_element_by_name("username")
         # passwordInput = self.browser.find_element_by_name("password")
 
@@ -241,25 +245,29 @@ class ParametersPlemiona:
     def getTimeAttack(self):
         timer = self.browser.find_element_by_class_name('relative_time')
         text = timer.text
-        textlen = len(text)
-        hour = text[textlen - 8] + text[textlen - 7] + text[textlen - 6] + text[textlen - 5] + text[textlen - 4] + text[textlen - 3] + text[textlen - 2] + text[textlen - 1]
+        textlength = len(text)
+        hour = text[textlength - 8] + text[textlength - 7] + text[textlength - 6] + text[textlength - 5] + text[textlength - 4] + text[
+            textlength - 3] + text[textlength - 2] + text[textlength - 1]
         return hour
 
     def getTime(self):
-        timer = self.browser.find_element_by_id('serverTime')
-        text = timer.text
-        return str(text)
+        try:
+            self.browser.find_element_by_id('serverTime')
+            timer = self.browser.find_element_by_id('serverTime')
+            return timer.text
+        except NoSuchElementException:
+            return "00:00:00"
 
     def wedge(self, hour, minute, second, millisecond):
-        wysylam = True
+        action = True
         hour2 = hour + ":" + minute + ":" + second
         mili = float(millisecond) / 1000
-        while wysylam:
+        while action:
             time.sleep(0.001)
             if self.getTimeAttack() == hour2:
                 time.sleep(mili)
                 self.browser.find_element_by_id('troop_confirm_go').click()
-                wysylam = False
+                action = False
 
 
 # bot.signin()

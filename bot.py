@@ -46,21 +46,26 @@ class Widget(QWidget):  # todo ustawianie ukąłdu widgetów oraz ich funkcji
         self.input_Minute = QLineEdit()
         self.input_Hour = QLineEdit()
         self.wedge_Box = QGroupBox("WEDGE")
-        self.button_Login = QPushButton("Login", self)
+        self.button_Login = QPushButton("Login")
         self.world_Input = QLineEdit()
         self.password_Input = QLineEdit()
         self.username_Input = QLineEdit()
         self.login_Box = QGroupBox("LOGIN")
-        self.createLeyoutLogin()
-        self.createLeyoutWedge()
-        self.createLeyoutTime()
+        self.backarmy_Box = QGroupBox("BACK")
+        self.button_BackArmy = QPushButton("Back")
+        self.createLayoutLogin()
+        self.createLayoutWedge()
+        self.createLayoutTime()
+        self.createLayoutBackArmy()
         self.thread1 = MyThread1(self.time_Input, self.bot)
+        self.thread3 = MyThread3(str(self.world_Input.text()), self.bot)
         # self.thread1.started.connect(self.printed)
 
         box = QGridLayout()
         box.addWidget(self.login_Box, 0, 0, 2, 12)
         box.addWidget(self.wedge_Box, 0, 12, 1, 30)
         box.addWidget(self.time_Box, 3, 0, 1, 1)
+        box.addWidget(self.backarmy_Box, 1, 12, 1, 30)
 
         self.setLayout(box)
 
@@ -111,12 +116,26 @@ class Widget(QWidget):  # todo ustawianie ukąłdu widgetów oraz ich funkcji
                 time.sleep(0.01)
                 continue
 
+    def buttonBackArmy(self):
+        if self.thread3.isRunning():
+            self.thread3.exiting = True
+            while self.thread3.isRunning():
+                time.sleep(0.01)
+                continue
+            # self.widget.time_Input.setText("123")
+        else:
+            self.thread3.exiting = False
+            self.thread3.start()
+            while not self.thread3.isRunning():
+                time.sleep(0.01)
+                continue
+
     def timerApp(self):
         self.time_Input.clear()
         self.time_Input.setText(self.bot.getTime())
         # self.thrend1.on_source(self, self.bot.getTime)
 
-    def createLeyoutLogin(self):
+    def createLayoutLogin(self):
         grid_layout = QGridLayout()
 
         username_label = QLabel("Username")
@@ -138,7 +157,7 @@ class Widget(QWidget):  # todo ustawianie ukąłdu widgetów oraz ich funkcji
 
         self.login_Box.setLayout(grid_layout)
 
-    def createLeyoutWedge(self):
+    def createLayoutWedge(self):
         grid_layout = QGridLayout()
 
         hour_label = QLabel("HOUR(00)")
@@ -161,7 +180,7 @@ class Widget(QWidget):  # todo ustawianie ukąłdu widgetów oraz ich funkcji
 
         self.wedge_Box.setLayout(grid_layout)
 
-    def createLeyoutTime(self):
+    def createLayoutTime(self):
         grid_layout = QGridLayout()
 
         time_label = QLabel("Time")
@@ -170,6 +189,17 @@ class Widget(QWidget):  # todo ustawianie ukąłdu widgetów oraz ich funkcji
         grid_layout.addWidget(self.time_Input, 0, 1)
 
         self.time_Box.setLayout(grid_layout)
+
+    def createLayoutBackArmy(self):
+        grid_layout = QGridLayout()
+
+        self.button_BackArmy.clicked.connect(self.buttonBackArmy)
+
+        grid_layout.addWidget(self.button_BackArmy, 0, 0)
+
+        self.backarmy_Box.setLayout(grid_layout)
+
+
 
 
 class MyThread1(QThread):  # todo klasa odpowiedzialna za aktualizacje czasu w aplikacji
@@ -203,7 +233,22 @@ class MyThread2(QThread):  # todo klasa odpowiedzialna za wywołanie klina
         # while self.exiting == False:
         self.bot.wedge(self.hour, self.minute, self.second, self.millisecond)
         self.exiting = True
-        #self.exit()
+        # self.exit()
+
+
+class MyThread3(QThread):  # todo klasa odpowiedzialna za aktualizacje czasu w aplikacji
+    def __init__(self, input, bot, parent=None):
+        QThread.__init__(self, parent)
+        self.input = input
+        self.bot = bot
+        self.exiting = False
+
+    def run(self):
+        #while self.exiting == False:
+        self.bot.getBackArmy(self.input)
+            # sys.stdout.write('*')
+            # sys.stdout.flush()
+            #time.sleep(0.1)
 
 
 class ParametersPlemiona:  # todo klasa w której analizowane są parametryw  przeglądarce a następnie poddawane obróbce
@@ -226,7 +271,7 @@ class ParametersPlemiona:  # todo klasa w której analizowane są parametryw  pr
         passwordInput.send_keys(password)
         # passwordInput.send_keys(Keys.ENTER)
         buttonLogin.click()
-        time.sleep(0.5)
+        time.sleep(1)
 
         # worldInput = self.browser.find_element(By.XPATH,"/html/body/div[3]/div[4]/div[10]/div[3]/div[2]/div[1]/a[3]/span")
         # worldInput = self.browser.find_element(By.XPATH,"//a[@href='/page/play/pl152']")
@@ -243,12 +288,18 @@ class ParametersPlemiona:  # todo klasa w której analizowane są parametryw  pr
         #buttonRecruitment.click()
         '''
 
+    def getBackArmy(self, world):
+        print(world)
+        self.browser.get('https://pl' + world + '.plemiona.pl' + '/game.php?village=&screen=place')
+
+
     def getTimeAttack(self):
         timer = self.browser.find_element_by_class_name('relative_time')
         text = timer.text
         textlength = len(text)
-        hour = text[textlength - 8] + text[textlength - 7] + text[textlength - 6] + text[textlength - 5] + text[textlength - 4] + text[
-            textlength - 3] + text[textlength - 2] + text[textlength - 1]
+        hour = text[textlength - 8] + text[textlength - 7] + text[textlength - 6] + text[textlength - 5] + text[
+            textlength - 4] + text[
+                   textlength - 3] + text[textlength - 2] + text[textlength - 1]
         return hour
 
     def getTime(self):
@@ -263,6 +314,7 @@ class ParametersPlemiona:  # todo klasa w której analizowane są parametryw  pr
         action = True
         hour2 = hour + ":" + minute + ":" + second
         mili = float(millisecond) / 1000
+        print(mili)
         while action:
             time.sleep(0.001)
             if self.getTimeAttack() == hour2:

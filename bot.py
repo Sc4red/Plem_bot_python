@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import *
 
 from PyQt5.QtCore import QThread, pyqtSignal
+from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtWidgets import *
 from PyQt5.uic.properties import QtCore
 
@@ -20,7 +21,7 @@ class PlemionaBot(QMainWindow):  # todo klasa odpowiada za wywołąnie wszystkic
         self.app()
 
     def app(self):
-        self.setGeometry(0, 0, 500, 500)
+        #self.setGeometry(0, 0, 500, 500)
         self.setWindowTitle("Pleminona")
 
         self.setCentralWidget(self.main_widget)
@@ -39,11 +40,13 @@ class Widget(QWidget):  # todo ustawianie ukąłdu widgetów oraz ich funkcji
         self.bot = ParametersPlemiona()
 
         self.button_Login = QPushButton("Login")
-        self.button_SendAttack = QPushButton("Dograj atak")
         self.password_Input = QLineEdit()
         self.username_Input = QLineEdit()
         self.world_Input = QLineEdit()
         self.login_Box = QGroupBox("LOGIN")
+        self.password_Input.setFixedSize(100, 20)
+        self.username_Input.setFixedSize(100, 20)
+        self.world_Input.setFixedSize(100, 20)
 
         self.button_Wedge = QPushButton("Wedge")
         self.input_Hour = QLineEdit()
@@ -51,27 +54,62 @@ class Widget(QWidget):  # todo ustawianie ukąłdu widgetów oraz ich funkcji
         self.input_Second = QLineEdit()
         self.input_Millisecond = QLineEdit()
         self.wedge_Box = QGroupBox("WEDGE")
+        self.input_Hour.setFixedSize(50, 20)
+        self.input_Minute.setFixedSize(50, 20)
+        self.input_Second.setFixedSize(50, 20)
+        self.input_Millisecond.setFixedSize(50, 20)
 
         self.time_Input = QLineEdit()
         self.time_Box = QGroupBox("TIME")
 
         self.button_BackArmy = QPushButton("Back")
         self.backarmy_Box = QGroupBox("BACK")
-        self.input_NumberVillage = QLineEdit()
+
+        self.button_Sendautoattack = QPushButton("Send auto attack")
+        self.input_Numbervillage = QLineEdit()
+        self.input_CoordinateXvillage = QLineEdit()
+        self.input_CoordinateYvillage = QLineEdit()
+        self.input_Pikeman = QLineEdit()
+        self.input_Swordfish = QLineEdit()
+        self.input_Axeman = QLineEdit()
+        self.input_Scout = QLineEdit()
+        self.input_Lightcavalery = QLineEdit()
+        self.input_Heavycavalery = QLineEdit()
+        self.input_Ram = QLineEdit()
+        self.input_Catapult = QLineEdit()
+        self.input_Knight = QLineEdit()
+        self.input_Nobleman = QLineEdit()
+        self.sendautoattack_Box = QGroupBox("SEND AUTO ATTACK")
+        self.input_Numbervillage.setFixedSize(50, 20)
+        self.input_CoordinateXvillage.setFixedSize(50, 20)
+        self.input_CoordinateYvillage.setFixedSize(50, 20)
+        self.input_Pikeman.setFixedSize(50, 20)
+        self.input_Swordfish.setFixedSize(50, 20)
+        self.input_Axeman.setFixedSize(50, 20)
+        self.input_Scout.setFixedSize(50, 20)
+        self.input_Lightcavalery.setFixedSize(50, 20)
+        self.input_Heavycavalery.setFixedSize(50, 20)
+        self.input_Ram.setFixedSize(50, 20)
+        self.input_Catapult.setFixedSize(50, 20)
+        self.input_Knight.setFixedSize(50, 20)
+        self.input_Nobleman.setFixedSize(50, 20)
+
 
         self.createLayoutLogin()
         self.createLayoutWedge()
         self.createLayoutTime()
         self.createLayoutBackArmy()
+        self.createLayoutSendAutoAttack()
 
         self.thread1 = MyThread1(self.time_Input, self.bot)
         self.thread3 = MyThread3(str(self.world_Input.text()), self.bot)
 
         box = QGridLayout()
-        box.addWidget(self.login_Box, 0, 0, 2, 12)
-        box.addWidget(self.wedge_Box, 0, 12, 1, 30)
-        box.addWidget(self.time_Box, 3, 0, 1, 1)
-        box.addWidget(self.backarmy_Box, 1, 12, 1, 30)
+        box.addWidget(self.login_Box, 0, 0, 2, 10)
+        box.addWidget(self.wedge_Box, 0, 10, 1, 8)
+        box.addWidget(self.backarmy_Box, 1, 10, 1, 20)
+        box.addWidget(self.time_Box, 2, 0, 1, 10)
+        box.addWidget(self.sendautoattack_Box, 2, 10, 1, 20)
 
         self.setLayout(box)
 
@@ -129,6 +167,7 @@ class Widget(QWidget):  # todo ustawianie ukąłdu widgetów oraz ich funkcji
 
     def buttonSendAttack(self):
         print("ppppp")
+        self.button_Login.setEnabled(False)
         hour = self.input_Hour.text()
         minute = self.input_Minute.text()
         second = self.input_Second.text()
@@ -138,9 +177,26 @@ class Widget(QWidget):  # todo ustawianie ukąłdu widgetów oraz ich funkcji
         password = self.password_Input.text()
         world = self.world_Input.text()
 
-        number_village = self.input_NumberVillage.text()
+        number_village = self.input_Numbervillage.text()
 
-        self.thread4 = MyThread4(self.bot, username, password, world, hour, minute, second, millisecond, number_village)
+        world = self.world_Input.text()
+
+        coordinateXvillage = self.input_CoordinateXvillage.text()
+        coordinateYvillage = self.input_CoordinateYvillage.text()
+        pikeman = self.input_Pikeman.text()
+        swordfish = self.input_Swordfish.text()
+        axeman = self.input_Axeman.text()
+        scout = self.input_Scout.text()
+        lightcavalery = self.input_Lightcavalery.text()
+        heavycavalery = self.input_Heavycavalery.text()
+        ram = self.input_Ram.text()
+        catapult = self.input_Catapult.text()
+        knight = self.input_Knight.text()
+        nobleman = self.input_Nobleman.text()
+
+        self.thread4 = MyThread4(self.bot, username, password, world, hour, minute, second, millisecond, number_village,
+                                 coordinateXvillage, coordinateYvillage, pikeman, swordfish, axeman, scout,
+                                 lightcavalery, heavycavalery, ram, catapult, knight, nobleman)
 
         if self.thread4.isRunning():
             self.thread4.exiting = True
@@ -162,24 +218,22 @@ class Widget(QWidget):  # todo ustawianie ukąłdu widgetów oraz ich funkcji
     def createLayoutLogin(self):
         grid_layout = QGridLayout()
 
-        username_label = QLabel("Username")
-        password_label = QLabel("Password")
-        world_label = QLabel("World")
+        username_label = QLabel("Username:")
+        password_label = QLabel("Password:")
+        world_label = QLabel("World:")
 
         self.password_Input.setEchoMode(2)  # Hasło zasłonięte
 
         # self.button_Login.setCheckable(True)
         self.button_Login.clicked.connect(self.buttonLogin)
-        self.button_SendAttack.clicked.connect(self.buttonSendAttack)
 
-        grid_layout.addWidget(username_label, 0, 0)
-        grid_layout.addWidget(self.username_Input, 0, 1)
-        grid_layout.addWidget(password_label, 1, 0)
-        grid_layout.addWidget(self.password_Input, 1, 1)
-        grid_layout.addWidget(world_label, 2, 0)
-        grid_layout.addWidget(self.world_Input, 2, 1)
-        grid_layout.addWidget(self.button_Login, 3, 1)
-        grid_layout.addWidget(self.button_SendAttack, 3, 0)
+        grid_layout.addWidget(username_label, 0, 0, 1, 1)
+        grid_layout.addWidget(self.username_Input, 0, 1, 1, 1)
+        grid_layout.addWidget(password_label, 1, 0, 1, 1)
+        grid_layout.addWidget(self.password_Input, 1, 1, 1, 1)
+        grid_layout.addWidget(world_label, 2, 0, 1, 1)
+        grid_layout.addWidget(self.world_Input, 2, 1, 1, 1)
+        grid_layout.addWidget(self.button_Login, 3, 0, 1, 2)
 
         self.login_Box.setLayout(grid_layout)
 
@@ -194,15 +248,15 @@ class Widget(QWidget):  # todo ustawianie ukąłdu widgetów oraz ich funkcji
         self.button_Wedge.setCheckable(True)
         self.button_Wedge.clicked.connect(self.buttonWedge)
 
-        grid_layout.addWidget(hour_label, 0, 0)
-        grid_layout.addWidget(self.input_Hour, 1, 0)
-        grid_layout.addWidget(minute_label, 0, 1)
-        grid_layout.addWidget(self.input_Minute, 1, 1)
-        grid_layout.addWidget(second_label, 0, 2)
-        grid_layout.addWidget(self.input_Second, 1, 2)
-        grid_layout.addWidget(millisecond_label, 0, 3)
-        grid_layout.addWidget(self.input_Millisecond, 1, 3)
-        grid_layout.addWidget(self.button_Wedge, 2, 3)
+        grid_layout.addWidget(hour_label, 0, 0, 1, 1)
+        grid_layout.addWidget(self.input_Hour, 1, 0, 1, 1)
+        grid_layout.addWidget(minute_label, 0, 1, 1, 1)
+        grid_layout.addWidget(self.input_Minute, 1, 1, 1, 1)
+        grid_layout.addWidget(second_label, 0, 2, 1, 1)
+        grid_layout.addWidget(self.input_Second, 1, 2, 1, 1)
+        grid_layout.addWidget(millisecond_label, 0, 3, 1, 1)
+        grid_layout.addWidget(self.input_Millisecond, 1, 3, 1, 1)
+        grid_layout.addWidget(self.button_Wedge, 2, 0, 1, 4)
 
         self.wedge_Box.setLayout(grid_layout)
 
@@ -222,15 +276,82 @@ class Widget(QWidget):  # todo ustawianie ukąłdu widgetów oraz ich funkcji
         self.button_BackArmy.clicked.connect(self.buttonBackArmy)
 
         grid_layout.addWidget(self.button_BackArmy, 0, 0)
-        grid_layout.addWidget(self.input_NumberVillage, 1, 0)
+        grid_layout.addWidget(self.input_Numbervillage, 1, 0)
 
         self.backarmy_Box.setLayout(grid_layout)
 
+    def createLayoutSendAutoAttack(self):
+        grid_layout = QGridLayout()
+
+        numbervillage_label = QLabel("Number village:")
+        cordinateXvillage_label = QLabel("Cordinate X:")
+        cordinateYvillage_label = QLabel("Cordinate Y:")
+        tips_label = QLabel("TIPS: W celu użycia tej ramki należy wypełnić wszystkie pola w ramkach: LOGIN, WEDGE,\n "
+                            "SEND AUTO ATTACK Numer wioski należy odczytać z linku jak przejdziesz do konkretnej\n "
+                            "wioski, ten numer jest po village=, np. 26527")
+        pikeman_label = QLabel()
+        swordfish_label = QLabel()
+        axeman_label = QLabel()
+        scout_label = QLabel()
+        lightcavalery_label = QLabel()
+        heavycavalery_label = QLabel()
+        ram_label = QLabel()
+        catapult_label = QLabel()
+        knight_label = QLabel()
+        nobleman_label = QLabel()
+
+        pikeman_label.setPixmap(QPixmap("image/unit_spear.png"))
+        swordfish_label.setPixmap(QPixmap("image/unit_sword.png"))
+        axeman_label.setPixmap(QPixmap("image/unit_axe.png"))
+        scout_label.setPixmap(QPixmap("image/unit_spy.png"))
+        lightcavalery_label.setPixmap(QPixmap("image/unit_light.png"))
+        heavycavalery_label.setPixmap(QPixmap("image/unit_heavy.png"))
+        ram_label.setPixmap(QPixmap("image/unit_ram.png"))
+        catapult_label.setPixmap(QPixmap("image/unit_catapult.png"))
+        knight_label.setPixmap(QPixmap("image/unit_knight.png"))
+        nobleman_label.setPixmap(QPixmap("image/unit_snob.png"))
+
+        self.button_Sendautoattack.clicked.connect(self.buttonSendAttack)
+
+        grid_layout.addWidget(numbervillage_label, 0, 0, 1, 1)
+        grid_layout.addWidget(self.input_Numbervillage, 0, 1, 1, 1)
+        grid_layout.addWidget(cordinateXvillage_label, 1, 0, 1, 1)
+        grid_layout.addWidget(self.input_CoordinateXvillage, 1, 1, 1, 1)
+        grid_layout.addWidget(cordinateYvillage_label, 2, 0, 1, 1)
+        grid_layout.addWidget(self.input_CoordinateYvillage, 2, 1, 1, 1)
+
+        grid_layout.addWidget(pikeman_label, 0, 2, 1, 1)
+        grid_layout.addWidget(swordfish_label, 1, 2, 1, 1)
+        grid_layout.addWidget(axeman_label, 2, 2, 1, 1)
+        grid_layout.addWidget(self.input_Pikeman, 0, 3, 1, 1)
+        grid_layout.addWidget(self.input_Swordfish, 1, 3, 1, 1)
+        grid_layout.addWidget(self.input_Axeman, 2, 3, 1, 1)
+
+        grid_layout.addWidget(scout_label, 0, 4, 1, 1)
+        grid_layout.addWidget(lightcavalery_label, 1, 4, 1, 1)
+        grid_layout.addWidget(heavycavalery_label, 2, 4, 1, 1)
+        grid_layout.addWidget(self.input_Scout, 0, 5, 1, 1)
+        grid_layout.addWidget(self.input_Lightcavalery, 1, 5, 1, 1)
+        grid_layout.addWidget(self.input_Heavycavalery, 2, 5, 1, 1)
+
+        grid_layout.addWidget(ram_label, 0, 6, 1, 1)
+        grid_layout.addWidget(catapult_label, 1, 6, 1, 1)
+        grid_layout.addWidget(self.input_Ram, 0, 7, 1, 1)
+        grid_layout.addWidget(self.input_Catapult, 1, 7, 1, 1)
+
+        grid_layout.addWidget(knight_label, 0, 8, 1, 1)
+        grid_layout.addWidget(nobleman_label, 1, 8, 1, 1)
+        grid_layout.addWidget(self.input_Knight, 0, 9, 1, 1)
+        grid_layout.addWidget(self.input_Nobleman, 1, 9, 1, 1)
+
+        grid_layout.addWidget(self.button_Sendautoattack, 3, 0, 1, 10)
+
+        grid_layout.addWidget(tips_label, 4, 0, 1, 10)
+
+        self.sendautoattack_Box.setLayout(grid_layout)
 
 
 class MyThread1(QThread):  # todo klasa odpowiedzialna za aktualizacje czasu w aplikacji
-    sig1 = pyqtSignal(str)
-
     def __init__(self, input, bot, parent=None):
         QThread.__init__(self, parent)
         self.input = input
@@ -276,8 +397,11 @@ class MyThread3(QThread):  # todo klasa odpowiedzialna za aktualizacje czasu w a
         # sys.stdout.flush()
         # time.sleep(0.1)
 
+
 class MyThread4(QThread):  # todo klasa odpowiedzialna za aktualizacje czasu w aplikacji
-    def __init__(self, bot, username, password, world, hour, minute, second, millisecond, number_village, parent=None):
+    def __init__(self, bot, username, password, world, hour, minute, second, millisecond, number_village,
+                 coordinateXvillage, coordinateYvillage, pikeman, swordfish, axeman, scout, lightcavalery,
+                 heavycavalery, ram, catapult, knight, nobleman, parent=None):
         QThread.__init__(self, parent)
         self.exiting = False
         self.bot = bot
@@ -289,11 +413,26 @@ class MyThread4(QThread):  # todo klasa odpowiedzialna za aktualizacje czasu w a
         self.second = second
         self.millisecond = millisecond
         self.number_village = number_village
+        self.coordinateXvillage = coordinateXvillage
+        self.coordinateYvillage = coordinateYvillage
+        self.pikeman = pikeman
+        self.swordfish = swordfish
+        self.axeman = axeman
+        self.scout = scout
+        self.lightcavalery = lightcavalery
+        self.heavycavalery = heavycavalery
+        self.ram = ram
+        self.catapult = catapult
+        self.knight = knight
+        self.nobleman = nobleman
+
 
     def run(self):
         # while self.exiting == False:
         self.bot.signIn(self.username, self.password, self.world)
-        self.bot.autoAttack(self.world, self.number_village)
+        self.bot.sendAutoAttack(self.world, self.number_village, self.coordinateXvillage, self.coordinateYvillage,
+                                self.pikeman, self.swordfish, self.axeman, self.scout, self.lightcavalery,
+                                self.heavycavalery, self.ram, self.catapult, self.knight, self.nobleman)
         print(self.bot.getTime())
         sys.stdout.write('*')
         # sys.stdout.flush()
@@ -336,8 +475,24 @@ class ParametersPlemiona:  # todo klasa w której analizowane są parametryw  pr
         #buttonRecruitment = buttonLogin = browser1.find_element(By.XPATH,'/html/body/table/tbody/tr[2]/td[2]/table[2]/tbody/tr/td/table/tbody/tr/td/table/tbody/tr/td/form/table/tbody/tr[5]/td[2]/input')
         #buttonRecruitment.click()
         '''
-    def autoAttack(self, world, number_village):
-        self.browser.get('https://pl' + world + '.plemiona.pl' + '/game.php?village=n'+ number_village + '&screen=place')
+
+    def sendAutoAttack(self, world, number_village, coordinateXvillage, coordinateYvillage, pikeman, swordfish, axeman,
+                       scout, lightcavalery, heavycavalery, ram, catapult, knight, nobleman):
+        self.browser.get('https://pl' + world + '.plemiona.pl' + '/game.php?village=n' + number_village + '&screen=place')
+        time.sleep(1)
+        self.browser.find_element_by_name('input').send_keys(coordinateXvillage + coordinateYvillage)
+        self.browser.find_element_by_id('unit_input_spear').send_keys(pikeman)
+        self.browser.find_element_by_id('unit_input_sword').send_keys(swordfish)
+        self.browser.find_element_by_id('unit_input_axe').send_keys(axeman)
+        self.browser.find_element_by_id('unit_input_spy').send_keys(scout)
+        self.browser.find_element_by_id('unit_input_light').send_keys(lightcavalery)
+        self.browser.find_element_by_id('unit_input_heavy').send_keys(heavycavalery)
+        self.browser.find_element_by_id('unit_input_ram').send_keys(ram)
+        self.browser.find_element_by_id('unit_input_catapult').send_keys(catapult)
+        self.browser.find_element_by_id('unit_input_knight').send_keys(knight)
+        self.browser.find_element_by_id('unit_input_snob').send_keys(nobleman)
+        self.browser.find_element_by_id('target_attack').click()
+
 
     def getBackArmy(self, world):
         print(world)

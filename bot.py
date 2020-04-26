@@ -11,6 +11,7 @@ from selenium.webdriver.common.by import By  # todo import By for XPATH
 from selenium.common.exceptions import NoSuchElementException
 
 import time
+from datetime import datetime, timedelta
 from selenium.webdriver.common.keys import Keys
 
 
@@ -79,6 +80,8 @@ class Widget(QWidget):  # todo ustawianie ukąłdu widgetów oraz ich funkcji
         self.input_Catapult = QLineEdit()
         self.input_Knight = QLineEdit()
         self.input_Nobleman = QLineEdit()
+        self.input_Trooptraveltimehour = QLineEdit()
+        self.input_Trooptraveltimeminute = QLineEdit()
         self.sendautoattack_Box = QGroupBox("SEND AUTO ATTACK")
         self.input_Numbervillage.setFixedSize(50, 20)
         self.input_CoordinateXvillage.setFixedSize(50, 20)
@@ -93,7 +96,8 @@ class Widget(QWidget):  # todo ustawianie ukąłdu widgetów oraz ich funkcji
         self.input_Catapult.setFixedSize(50, 20)
         self.input_Knight.setFixedSize(50, 20)
         self.input_Nobleman.setFixedSize(50, 20)
-
+        self.input_Trooptraveltimehour.setFixedSize(50, 20)
+        self.input_Trooptraveltimeminute.setFixedSize(50, 20)
 
         self.createLayoutLogin()
         self.createLayoutWedge()
@@ -166,7 +170,6 @@ class Widget(QWidget):  # todo ustawianie ukąłdu widgetów oraz ich funkcji
                 continue
 
     def buttonSendAttack(self):
-        print("ppppp")
         self.button_Login.setEnabled(False)
         hour = self.input_Hour.text()
         minute = self.input_Minute.text()
@@ -193,10 +196,13 @@ class Widget(QWidget):  # todo ustawianie ukąłdu widgetów oraz ich funkcji
         catapult = self.input_Catapult.text()
         knight = self.input_Knight.text()
         nobleman = self.input_Nobleman.text()
+        trooptraveltime_hour = self.input_Trooptraveltimehour.text()
+        trooptraveltime_minute = self.input_Trooptraveltimeminute.text()
 
         self.thread4 = MyThread4(self.bot, username, password, world, hour, minute, second, millisecond, number_village,
                                  coordinateXvillage, coordinateYvillage, pikeman, swordfish, axeman, scout,
-                                 lightcavalery, heavycavalery, ram, catapult, knight, nobleman)
+                                 lightcavalery, heavycavalery, ram, catapult, knight, nobleman, trooptraveltime_hour,
+                                 trooptraveltime_minute)
 
         if self.thread4.isRunning():
             self.thread4.exiting = True
@@ -286,9 +292,16 @@ class Widget(QWidget):  # todo ustawianie ukąłdu widgetów oraz ich funkcji
         numbervillage_label = QLabel("Number village:")
         cordinateXvillage_label = QLabel("Cordinate X:")
         cordinateYvillage_label = QLabel("Cordinate Y:")
-        tips_label = QLabel("TIPS: W celu użycia tej ramki należy wypełnić wszystkie pola w ramkach: LOGIN, WEDGE,\n "
-                            "SEND AUTO ATTACK Numer wioski należy odczytać z linku jak przejdziesz do konkretnej\n "
-                            "wioski, ten numer jest po village=, np. 26527")
+        tips_label = QLabel("TIPS: W celu użycia tej ramki należy wypełnić wszystkie pola w ramkach: LOGIN, WEDGE,\n"
+                            "SEND AUTO ATTACK. Numer wioski należy odczytać z linku jak przejdziesz do konkretnej\n"
+                            "wioski, ten numer jest po village=, np. 26527.\n"
+                            "W polach gdzie jest podany odpowiedni format należy się do niego stosować, np. cyfrę\n"
+                            "jeden zapisujemy jako dwa znaki,NIE JEDEN (00)->01,05,20 itp.\n"
+                            "Gdy format jedt nie podany, nie jest konieczne usupełnienie danego pola, oprócz ramki LOGIN\n"
+                            "Gdy chcemy wysłaś zautomatyzowany atak nie klikamy przycisku login, tylko Send auto attack\n"
+                            "UWAGA!!! Gdy przejdziesz do Trop travel time: to ta zakładka oznacza długość podróży\n"
+                            "twoich wojsk, wiec jak podrż twoich wojsk trwa np. 12:43, to wpisujesz np 12:33, \n"
+                            "ZAWSZE MINIMUM 10MIN WCZESNIEJ MUSI BYC, PODKRESLAM MINIMUM, MOZE BYC WIECEJ")
         pikeman_label = QLabel()
         swordfish_label = QLabel()
         axeman_label = QLabel()
@@ -299,6 +312,9 @@ class Widget(QWidget):  # todo ustawianie ukąłdu widgetów oraz ich funkcji
         catapult_label = QLabel()
         knight_label = QLabel()
         nobleman_label = QLabel()
+        trooptraveltime_label = QLabel("Trop travel time:")
+        trooptraveltimehour_label = QLabel("HOUR(00)")
+        trooptraveltimeminute_label = QLabel("MIN(00)")
 
         pikeman_label.setPixmap(QPixmap("image/unit_spear.png"))
         swordfish_label.setPixmap(QPixmap("image/unit_sword.png"))
@@ -319,6 +335,11 @@ class Widget(QWidget):  # todo ustawianie ukąłdu widgetów oraz ich funkcji
         grid_layout.addWidget(self.input_CoordinateXvillage, 1, 1, 1, 1)
         grid_layout.addWidget(cordinateYvillage_label, 2, 0, 1, 1)
         grid_layout.addWidget(self.input_CoordinateYvillage, 2, 1, 1, 1)
+        grid_layout.addWidget(trooptraveltime_label, 3, 0, 1, 1)
+        grid_layout.addWidget(trooptraveltimehour_label, 4, 1, 1, 1)
+        grid_layout.addWidget(self.input_Trooptraveltimehour, 4, 2, 1, 2)
+        grid_layout.addWidget(trooptraveltimeminute_label, 4, 5, 1, 1)
+        grid_layout.addWidget(self.input_Trooptraveltimeminute, 4, 6, 1, 2)
 
         grid_layout.addWidget(pikeman_label, 0, 2, 1, 1)
         grid_layout.addWidget(swordfish_label, 1, 2, 1, 1)
@@ -344,9 +365,9 @@ class Widget(QWidget):  # todo ustawianie ukąłdu widgetów oraz ich funkcji
         grid_layout.addWidget(self.input_Knight, 0, 9, 1, 1)
         grid_layout.addWidget(self.input_Nobleman, 1, 9, 1, 1)
 
-        grid_layout.addWidget(self.button_Sendautoattack, 3, 0, 1, 10)
+        grid_layout.addWidget(self.button_Sendautoattack, 5, 0, 1, 10)
 
-        grid_layout.addWidget(tips_label, 4, 0, 1, 10)
+        grid_layout.addWidget(tips_label, 6, 0, 1, 10)
 
         self.sendautoattack_Box.setLayout(grid_layout)
 
@@ -398,10 +419,10 @@ class MyThread3(QThread):  # todo klasa odpowiedzialna za aktualizacje czasu w a
         # time.sleep(0.1)
 
 
-class MyThread4(QThread):  # todo klasa odpowiedzialna za aktualizacje czasu w aplikacji
+class MyThread4(QThread):  # todo klasa odpowiedzialna za automatyczne wybranie wioski i jej zaatakowanie
     def __init__(self, bot, username, password, world, hour, minute, second, millisecond, number_village,
                  coordinateXvillage, coordinateYvillage, pikeman, swordfish, axeman, scout, lightcavalery,
-                 heavycavalery, ram, catapult, knight, nobleman, parent=None):
+                 heavycavalery, ram, catapult, knight, nobleman, trooptraveltime_hour, trooptraveltime_minute, parent=None):
         QThread.__init__(self, parent)
         self.exiting = False
         self.bot = bot
@@ -425,15 +446,45 @@ class MyThread4(QThread):  # todo klasa odpowiedzialna za aktualizacje czasu w a
         self.catapult = catapult
         self.knight = knight
         self.nobleman = nobleman
+        self.trooptraveltime_hour = trooptraveltime_hour
+        self.trooptraveltime_minute = trooptraveltime_minute
 
 
     def run(self):
         # while self.exiting == False:
+        #print().time().strftime("%H:%M:%S")
+        h = int(self.hour) - int(self.trooptraveltime_hour)
+        m = int(self.minute) - int(self.trooptraveltime_minute) - 10
+        print(h)
+        if m < 0:
+            m = 60 + m
+            h = h - 1
+        if h < 0:
+            h = 24 + h
+
+        if len(str(h)) < 2:
+            h = "0" + str(h)
+        else:
+            h = str(h)
+
+        if len(str(m)) < 2:
+            m = "0" + str(m)
+        else:
+            m = str(m)
+
+        hour = str(h) + ":" + str(m)
+        #hour = datetime.now() + timedelta(hours=int(self.trooptraveltime_hour[0]+self.trooptraveltime_hour[1]),
+        #                                  minutes=int(self.trooptraveltime_minute[0]+self.trooptraveltime_minute[1]))
+        print(hour)
+        while hour != datetime.now().strftime("%H:%M"):
+            time.sleep(60)
+
         self.bot.signIn(self.username, self.password, self.world)
         self.bot.sendAutoAttack(self.world, self.number_village, self.coordinateXvillage, self.coordinateYvillage,
                                 self.pikeman, self.swordfish, self.axeman, self.scout, self.lightcavalery,
                                 self.heavycavalery, self.ram, self.catapult, self.knight, self.nobleman)
-        print(self.bot.getTime())
+        self.bot.wedge(self.hour, self.minute, self.second, self.millisecond)
+        #print(self.bot.getTime())
         sys.stdout.write('*')
         # sys.stdout.flush()
         time.sleep(0.1)
@@ -493,7 +544,6 @@ class ParametersPlemiona:  # todo klasa w której analizowane są parametryw  pr
         self.browser.find_element_by_id('unit_input_snob').send_keys(nobleman)
         self.browser.find_element_by_id('target_attack').click()
 
-
     def getBackArmy(self, world):
         print(world)
         self.browser.get('https://pl' + world + '.plemiona.pl' + '/game.php?village=&screen=place')
@@ -519,7 +569,6 @@ class ParametersPlemiona:  # todo klasa w której analizowane są parametryw  pr
         action = True
         hour2 = hour + ":" + minute + ":" + second
         mili = float(millisecond) / 1000
-        print(mili)
         while action:
             time.sleep(0.001)
             if self.getTimeAttack() == hour2:

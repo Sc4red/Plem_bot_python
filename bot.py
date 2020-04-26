@@ -300,8 +300,7 @@ class Widget(QWidget):  # todo ustawianie ukąłdu widgetów oraz ich funkcji
                             "Gdy format jedt nie podany, nie jest konieczne usupełnienie danego pola, oprócz ramki LOGIN\n"
                             "Gdy chcemy wysłaś zautomatyzowany atak nie klikamy przycisku login, tylko Send auto attack\n"
                             "UWAGA!!! Gdy przejdziesz do Trop travel time: to ta zakładka oznacza długość podróży\n"
-                            "twoich wojsk, wiec jak podrż twoich wojsk trwa np. 12:43, to wpisujesz np 12:33, \n"
-                            "ZAWSZE MINIMUM 10MIN WCZESNIEJ MUSI BYC, PODKRESLAM MINIMUM, MOZE BYC WIECEJ")
+                            "twoich wojsk(na plemionach jest to oznaczone jako trwanie)")
         pikeman_label = QLabel()
         swordfish_label = QLabel()
         axeman_label = QLabel()

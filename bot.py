@@ -454,7 +454,6 @@ class MyThread4(QThread):  # todo klasa odpowiedzialna za automatyczne wybranie 
         #print().time().strftime("%H:%M:%S")
         h = int(self.hour) - int(self.trooptraveltime_hour)
         m = int(self.minute) - int(self.trooptraveltime_minute) - 10
-        print(h)
         if m < 0:
             m = 60 + m
             h = h - 1
@@ -470,10 +469,7 @@ class MyThread4(QThread):  # todo klasa odpowiedzialna za automatyczne wybranie 
             m = "0" + str(m)
         else:
             m = str(m)
-
         hour = str(h) + ":" + str(m)
-        #hour = datetime.now() + timedelta(hours=int(self.trooptraveltime_hour[0]+self.trooptraveltime_hour[1]),
-        #                                  minutes=int(self.trooptraveltime_minute[0]+self.trooptraveltime_minute[1]))
         print(hour)
         while hour != datetime.now().strftime("%H:%M"):
             time.sleep(60)

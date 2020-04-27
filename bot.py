@@ -14,6 +14,8 @@ import time
 from datetime import datetime, timedelta
 from selenium.webdriver.common.keys import Keys
 
+from QLed import QLed
+
 
 class PlemionaBot(QMainWindow):  # todo klasa odpowiada za wywołąnie wszystkich elementów okna MainWindow
     def __init__(self):
@@ -46,11 +48,13 @@ class Widget(QWidget):  # todo ustawianie ukąłdu widgetów oraz ich funkcji
         self.password_Input = QLineEdit()
         self.username_Input = QLineEdit()
         self.world_Input = QLineEdit()
+        self.led_Login = QLed(shape=QLed.Circle, onColour=QLed.Red, value=True)
         self.login_Box = QGroupBox("LOGIN")
         self.button_Checkpassword.setFixedSize(20, 20)
         self.password_Input.setFixedSize(100, 20)
         self.username_Input.setFixedSize(100, 20)
         self.world_Input.setFixedSize(100, 20)
+        self.led_Login.setFixedSize(20, 20)
 
         self.button_Wedge = QPushButton("Wedge")
         self.input_Hour = QLineEdit()
@@ -108,24 +112,29 @@ class Widget(QWidget):  # todo ustawianie ukąłdu widgetów oraz ich funkcji
         self.createLayoutBackArmy()
         self.createLayoutSendAutoAttack()
 
-        self.thread1 = MyThread1(self.time_Input, self.bot, self.button_Login)
-        self.thread3 = MyThread3(str(self.world_Input.text()), self.bot)
+        self.thread1 = MyThread1(self.time_Input, self.bot, self.button_Login, self.button_Wedge, self.button_BackArmy, self.led_Login)
+        self.thread3 = MyThread3(self.bot, self.world_Input, self.input_Numbervillage)
 
         box = QGridLayout()
         box.addWidget(self.login_Box, 0, 0, 2, 10)
         box.addWidget(self.wedge_Box, 0, 10, 1, 8)
         box.addWidget(self.backarmy_Box, 1, 10, 1, 20)
         box.addWidget(self.time_Box, 2, 0, 1, 10)
-        box.addWidget(self.sendautoattack_Box, 2, 10, 1, 20)
+        box.addWidget(self.sendautoattack_Box, 2, 10, 10, 20)
 
         self.setLayout(box)
 
     def buttonLogin(self):
-        self.button_Login.setEnabled(False)
+        bool1 = True
         username = self.username_Input.text()
         password = self.password_Input.text()
         world = self.world_Input.text()
-        self.bot.signIn(username, password, world)
+        bool1 = self.bot.signIn(username, password, world)
+        if bool1 != False:
+            self.button_Login.setEnabled(False)
+            self.button_Wedge.setEnabled(True)
+            self.button_BackArmy.setEnabled(True)
+            self.led_Login.setOnColour(QLed.Green)
         # self.thrend1.terminated.connect(self.printed)
         # self.thrend1.started.connect(self.timerApp)
         if self.thread1.isRunning():
@@ -250,6 +259,7 @@ class Widget(QWidget):  # todo ustawianie ukąłdu widgetów oraz ich funkcji
         grid_layout.addWidget(world_label, 2, 0, 1, 1)
         grid_layout.addWidget(self.world_Input, 2, 1, 1, 1)
         grid_layout.addWidget(self.button_Login, 3, 0, 1, 2)
+        grid_layout.addWidget(self.led_Login, 3, 2, 1, 1)
         grid_layout.addWidget(self.button_Checkpassword, 1, 2, 1, 1)
 
         self.login_Box.setLayout(grid_layout)
@@ -262,7 +272,7 @@ class Widget(QWidget):  # todo ustawianie ukąłdu widgetów oraz ich funkcji
         second_label = QLabel("SECOND(00)")
         millisecond_label = QLabel("MILLISECOND(000)")
 
-        self.button_Wedge.setCheckable(True)
+        self.button_Wedge.setEnabled(False)
         self.button_Wedge.clicked.connect(self.buttonWedge)
 
         grid_layout.addWidget(hour_label, 0, 0, 1, 1)
@@ -282,14 +292,15 @@ class Widget(QWidget):  # todo ustawianie ukąłdu widgetów oraz ich funkcji
 
         time_label = QLabel("Time")
 
-        grid_layout.addWidget(time_label, 0, 0)
-        grid_layout.addWidget(self.time_Input, 0, 1)
+        grid_layout.addWidget(time_label, 0, 0, 1, 1)
+        grid_layout.addWidget(self.time_Input, 0, 1, 1, 1)
 
         self.time_Box.setLayout(grid_layout)
 
     def createLayoutBackArmy(self):
         grid_layout = QGridLayout()
 
+        self.button_BackArmy.setEnabled(False)
         self.button_BackArmy.clicked.connect(self.buttonBackArmy)
 
         grid_layout.addWidget(self.button_BackArmy, 0, 0)
@@ -383,11 +394,14 @@ class Widget(QWidget):  # todo ustawianie ukąłdu widgetów oraz ich funkcji
 
 
 class MyThread1(QThread):  # todo klasa odpowiedzialna za aktualizacje czasu w aplikacji
-    def __init__(self, input, bot, buttonlogin, parent=None):
+    def __init__(self, input, bot, buttonlogin, buttonwedge, buttobackarmy, ledlogin, parent=None):
         QThread.__init__(self, parent)
         self.input = input
         self.bot = bot
         self.buttonlogin = buttonlogin
+        self.buttonwedge = buttonwedge
+        self.buttobackarmy = buttobackarmy
+        self.ledlogin = ledlogin
         self.exiting = False
 
     def run(self):
@@ -396,6 +410,9 @@ class MyThread1(QThread):  # todo klasa odpowiedzialna za aktualizacje czasu w a
             if bool1 == True:
                 self.input.setText("00:00:00")
                 self.buttonlogin.setEnabled(True)
+                self.buttonwedge.setEnabled(False)
+                self.buttobackarmy.setEnabled(False)
+                self.ledlogin.setOnColour(QLed.Red)
                 break
             self.input.setText(bool1)
             # sys.stdout.write('*')
@@ -421,15 +438,16 @@ class MyThread2(QThread):  # todo klasa odpowiedzialna za wywołanie klina
 
 
 class MyThread3(QThread):  # todo klasa odpowiedzialna za aktualizacje czasu w aplikacji
-    def __init__(self, input, bot, parent=None):
+    def __init__(self, bot, world, number_village, parent=None):
         QThread.__init__(self, parent)
-        self.input = input
         self.bot = bot
+        self.world = world
+        self.number_village = number_village
         self.exiting = False
 
     def run(self):
         # while self.exiting == False:
-        self.bot.getBackArmy(self.input)
+        self.bot.getBackArmy(self.world, self.number_village)
         # sys.stdout.write('*')
         # sys.stdout.flush()
         # time.sleep(0.1)
@@ -470,7 +488,7 @@ class MyThread4(QThread):  # todo klasa odpowiedzialna za automatyczne wybranie 
         # while self.exiting == False:
         #print().time().strftime("%H:%M:%S")
         h = int(self.hour) - int(self.trooptraveltime_hour)
-        m = int(self.minute) - int(self.trooptraveltime_minute) - 10
+        m = int(self.minute) - int(self.trooptraveltime_minute) - 2
         if m < 0:
             m = 60 + m
             h = h - 1
@@ -496,10 +514,7 @@ class MyThread4(QThread):  # todo klasa odpowiedzialna za automatyczne wybranie 
                                 self.pikeman, self.swordfish, self.axeman, self.scout, self.lightcavalery,
                                 self.heavycavalery, self.ram, self.catapult, self.knight, self.nobleman)
         self.bot.wedge(self.hour, self.minute, self.second, self.millisecond)
-        #print(self.bot.getTime())
-        sys.stdout.write('*')
-        # sys.stdout.flush()
-        time.sleep(0.1)
+        self.bot.browser = None
 
 
 class ParametersPlemiona:  # todo klasa w której analizowane są parametryw  przeglądarce a następnie poddawane obróbce
@@ -527,6 +542,11 @@ class ParametersPlemiona:  # todo klasa w której analizowane są parametryw  pr
         # worldInput = self.browser.find_element(By.XPATH,"/html/body/div[3]/div[4]/div[10]/div[3]/div[2]/div[1]/a[3]/span")
         # worldInput = self.browser.find_element(By.XPATH,"//a[@href='/page/play/pl152']")
         self.browser.get('https://www.plemiona.pl/' + 'page/play/pl' + world)
+        try:
+            self.browser.find_element_by_id('serverTime')
+        except NoSuchElementException:
+            print("Błąd w danych od logowania zresetuj przeglądarke i wprowadź poprawnie dane")
+            return False
         '''
         # worldInput.click()
         time.sleep(2)
@@ -559,9 +579,8 @@ class ParametersPlemiona:  # todo klasa w której analizowane są parametryw  pr
         except NoSuchElementException:
             print("Brak elementu, wprowadź dane poprawnie")
 
-    def getBackArmy(self, world):
-        print(world)
-        self.browser.get('https://pl' + world + '.plemiona.pl' + '/game.php?village=&screen=place')
+    def getBackArmy(self, world, number_village):
+        self.browser.get('https://pl' + world + '.plemiona.pl' + '/game.php?village=n' + number_village + '&screen=place')
 
     def getTimeAttack(self):
         timer = self.browser.find_element_by_class_name('relative_time')

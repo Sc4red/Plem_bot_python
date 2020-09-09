@@ -1,22 +1,33 @@
-import tkinter as tk
+# import tkinter as tk
 from tkinter import *
 
-from PyQt5.QtCore import QThread, pyqtSignal
-from PyQt5.QtGui import QIcon, QPixmap
+from PyQt5.QtCore import *
+from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
+# from PyQt5.uic.properties import QtCore
 from PyQt5.uic.properties import QtCore
 
 from selenium import webdriver  # todo import webdriver
 from selenium.webdriver.common.by import By  # todo import By for XPATH
-from selenium.common.exceptions import NoSuchElementException, WebDriverException
+from selenium.common.exceptions import NoSuchElementException, WebDriverException, NoSuchWindowException
+from selenium.webdriver.support.select import Select
+# from selenium.webdriver.support import expected_conditions as EC
 
 import time
-from datetime import datetime, timedelta
+from datetime import datetime
 from selenium.webdriver.common.keys import Keys
 
 from QLed import QLed
+from selenium.webdriver.support.wait import WebDriverWait
 
-
+import pandas as pd
+'''
+time1 ="1:32:21"
+time1 = time.strptime(time1, '%H:%M:%S')
+print(time1.tm_hour)
+print(time1.tm_min)
+print(time1.tm_sec)
+'''
 class PlemionaBot(QMainWindow):  # todo klasa odpowiada za wywołąnie wszystkich elementów okna MainWindow
     def __init__(self):
         super(PlemionaBot, self).__init__()
@@ -24,8 +35,9 @@ class PlemionaBot(QMainWindow):  # todo klasa odpowiada za wywołąnie wszystkic
         self.app()
 
     def app(self):
-        #self.setGeometry(0, 0, 500, 500)
+        # self.setGeometry(0, 0, 500, 500)
         self.setWindowTitle("Pleminona")
+        # self.setWindowIcon(QIcon("image/plemiona_icon.png"))
 
         self.setCentralWidget(self.main_widget)
         # self.widget = Widget()
@@ -61,17 +73,21 @@ class Widget(QWidget):  # todo ustawianie ukąłdu widgetów oraz ich funkcji
         self.input_Minute = QLineEdit()
         self.input_Second = QLineEdit()
         self.input_Millisecond = QLineEdit()
+        self.led_Wedge = QLed(shape=QLed.Circle, onColour=QLed.Red, value=True)
         self.wedge_Box = QGroupBox("WEDGE")
         self.input_Hour.setFixedSize(50, 20)
         self.input_Minute.setFixedSize(50, 20)
         self.input_Second.setFixedSize(50, 20)
         self.input_Millisecond.setFixedSize(50, 20)
+        self.led_Wedge.setFixedSize(20, 20)
 
-        self.time_Input = QLineEdit()
+        self.time_Input = QLineEdit("00:00:00")
         self.time_Box = QGroupBox("TIME")
 
-        self.button_BackArmy = QPushButton("Back")
-        self.backarmy_Box = QGroupBox("BACK")
+        self.button_BackArmyToBarb = QPushButton("Back army to barba")
+        self.button_WriteArmyToExcel = QPushButton("Write army to excel")
+        self.button_SendAutoAttackFromExcel = QPushButton("Send auto attack from EXCEL")
+        self.otherbutton_Box = QGroupBox("BUTTON")
 
         self.button_Sendautoattack = QPushButton("Send auto attack")
         self.input_Numbervillage = QLineEdit()
@@ -105,38 +121,70 @@ class Widget(QWidget):  # todo ustawianie ukąłdu widgetów oraz ich funkcji
         self.input_Nobleman.setFixedSize(50, 20)
         self.input_Trooptraveltimehour.setFixedSize(50, 20)
         self.input_Trooptraveltimeminute.setFixedSize(50, 20)
+        self.checkbox_all_army = QCheckBox('All Army')
+        # self.checkbox_all_army.stateChanged.connect(self.checkboxAllArmy)
+
+        # self.error_dialog = QErrorMessage()
+        # self.error_dialog.setWindowTitle("Error message")
+        # self.error_dialog.setWindowIcon(QIcon("image/error_icon.png"))
+        self.error_dialog = QMessageBox()
+        self.error_dialog.setWindowIcon(QIcon("image/error_icon.png"))
+        self.error_dialog.setWindowTitle("Error message")
+        self.error_dialog.setIconPixmap(
+            QPixmap("image/warning_icon2.png").scaled(int(QPixmap("image/warning_icon2.png").width() / 2),
+                                                      int(QPixmap("image/warning_icon2.png").height() / 2)))
+
+        self.button_FarmersAssistant = QPushButton("Farmer's assistant")
+        self.farm_Box = QGroupBox("FARM")
 
         self.createLayoutLogin()
         self.createLayoutWedge()
         self.createLayoutTime()
-        self.createLayoutBackArmy()
+        self.createLayoutOtherButton()
         self.createLayoutSendAutoAttack()
-
-        self.thread1 = MyThread1(self.time_Input, self.bot, self.button_Login, self.button_Wedge, self.button_BackArmy, self.led_Login)
-        self.thread3 = MyThread3(self.bot, self.world_Input, self.input_Numbervillage)
+        self.createLayoutFarm()
 
         box = QGridLayout()
         box.addWidget(self.login_Box, 0, 0, 2, 10)
         box.addWidget(self.wedge_Box, 0, 10, 1, 8)
-        box.addWidget(self.backarmy_Box, 1, 10, 1, 20)
         box.addWidget(self.time_Box, 2, 0, 1, 10)
+        box.addWidget(self.otherbutton_Box, 3, 0, 1, 10)
         box.addWidget(self.sendautoattack_Box, 2, 10, 10, 20)
+        #box.addWidget(self.farm_Box, 0, 18, 2, 12)
 
         self.setLayout(box)
+
+    def checkboxAllArmy(self, state):
+        if Qt.Checked == state:
+            print(self.checkbox_all_army.isChecked())
+        else:
+            print(self.checkbox_all_army.isChecked())
 
     def buttonLogin(self):
         bool1 = True
         username = self.username_Input.text()
         password = self.password_Input.text()
         world = self.world_Input.text()
+
+        if username == "" or password == "" or world == "":
+            # self.error_dialog.showMessage("Brak lub za mało wprowadzonych danych w ramce 'LOGIN'")
+            self.error_dialog.setText("Brak lub za mało wprowadzonych danych w ramce 'LOGIN'")
+            self.error_dialog.exec_()
+            print("Brak lub za mało wprowadzonych danych w ramce 'LOGIN'")
+            return
+
         bool1 = self.bot.signIn(username, password, world)
+
         if bool1 != False:
             self.button_Login.setEnabled(False)
             self.button_Wedge.setEnabled(True)
-            self.button_BackArmy.setEnabled(True)
+            self.button_BackArmyToBarb.setEnabled(True)
+            self.button_WriteArmyToExcel.setEnabled(True)
             self.led_Login.setOnColour(QLed.Green)
         # self.thrend1.terminated.connect(self.printed)
         # self.thrend1.started.connect(self.timerApp)
+        self.thread1 = MyThread1(self.time_Input, self.bot, self.button_Login, self.button_Wedge,
+                                 self.button_BackArmyToBarb, self.button_WriteArmyToExcel, self.led_Login)
         if self.thread1.isRunning():
             self.thread1.exiting = True
             while self.thread1.isRunning():
@@ -161,7 +209,14 @@ class Widget(QWidget):  # todo ustawianie ukąłdu widgetów oraz ich funkcji
         second = self.input_Second.text()
         millisecond = self.input_Millisecond.text()
 
-        self.thrend2 = MyThread2(self.bot, hour, minute, second, millisecond)
+        if hour == "" or minute == "" or second == "" or millisecond == "":
+            self.error_dialog.setText("Brak lub za mało wprowadzonych danych w ramce 'WEDGE'")
+            self.error_dialog.exec_()
+            print("Brak lub za mało wprowadzonych danych w ramce 'WEDGE'")
+            return
+
+        self.led_Wedge.setOnColour(QLed.Green)
+        self.thrend2 = MyThread2(self.bot, hour, minute, second, millisecond, self.led_Wedge)
         if self.thrend2.isRunning():
             self.thrend2.exiting = True
             while self.thrend2.isRunning():
@@ -175,6 +230,7 @@ class Widget(QWidget):  # todo ustawianie ukąłdu widgetów oraz ich funkcji
                 continue
 
     def buttonBackArmy(self):
+        self.thread3 = MyThread3(self.bot, self.world_Input, self.input_Numbervillage)
         if self.thread3.isRunning():
             self.thread3.exiting = True
             while self.thread3.isRunning():
@@ -187,8 +243,16 @@ class Widget(QWidget):  # todo ustawianie ukąłdu widgetów oraz ich funkcji
                 time.sleep(0.01)
                 continue
 
+    def buttonWriteArmyToExcel(self):
+        self.bot.WriteArmyToExcel(self.world_Input.text())
+
+    def timerApp(self):
+        self.time_Input.clear()
+        self.time_Input.setText(self.bot.getTime())
+        # self.thrend1.on_source(self, self.bot.getTime)
+
     def buttonSendAttack(self):
-        self.button_Login.setEnabled(False)
+        # self.button_Login.setEnabled(False)
         hour = self.input_Hour.text()
         minute = self.input_Minute.text()
         second = self.input_Second.text()
@@ -199,8 +263,6 @@ class Widget(QWidget):  # todo ustawianie ukąłdu widgetów oraz ich funkcji
         world = self.world_Input.text()
 
         number_village = self.input_Numbervillage.text()
-
-        world = self.world_Input.text()
 
         coordinateXvillage = self.input_CoordinateXvillage.text()
         coordinateYvillage = self.input_CoordinateYvillage.text()
@@ -216,11 +278,30 @@ class Widget(QWidget):  # todo ustawianie ukąłdu widgetów oraz ich funkcji
         nobleman = self.input_Nobleman.text()
         trooptraveltime_hour = self.input_Trooptraveltimehour.text()
         trooptraveltime_minute = self.input_Trooptraveltimeminute.text()
+        checkboxallarmy = self.checkbox_all_army.isChecked()
+
+        if username == "" or password == "" or world == "":
+            self.error_dialog.setText("Brak lub za mało wprowadzonych danych w ramce 'LOGIN'")
+            self.error_dialog.exec_()
+            print("Brak lub za mało wprowadzonych danych w ramce 'LOGIN'")
+            return
+
+        if hour == "" or minute == "" or second == "" or millisecond == "":
+            self.error_dialog.setText("Brak lub za mało wprowadzonych danych w ramce 'WEDGE'")
+            self.error_dialog.exec_()
+            print("Brak lub za mało wprowadzonych danych w ramce 'WEDGE'")
+            return
+
+        if number_village == "" or coordinateXvillage == "" or coordinateYvillage == "" or trooptraveltime_hour == "" or trooptraveltime_minute == "":
+            self.error_dialog.setText("Brak lub za mało wprowadzonych danych w ramce 'SEND AUTO ATTACK'")
+            self.error_dialog.exec_()
+            print("Brak lub za mało wprowadzonych danych w ramce 'SEND AUTO ATTACK'")
+            return
 
         self.thread4 = MyThread4(self.bot, username, password, world, hour, minute, second, millisecond, number_village,
                                  coordinateXvillage, coordinateYvillage, pikeman, swordfish, axeman, scout,
                                  lightcavalery, heavycavalery, ram, catapult, knight, nobleman, trooptraveltime_hour,
-                                 trooptraveltime_minute)
+                                 trooptraveltime_minute, checkboxallarmy)
 
         if self.thread4.isRunning():
             self.thread4.exiting = True
@@ -234,10 +315,129 @@ class Widget(QWidget):  # todo ustawianie ukąłdu widgetów oraz ich funkcji
                 time.sleep(0.01)
                 continue
 
-    def timerApp(self):
-        self.time_Input.clear()
-        self.time_Input.setText(self.bot.getTime())
-        # self.thrend1.on_source(self, self.bot.getTime)
+    def buttonSendAutoAttackFromExcel(self):
+        excel_file = 'plemiona.xlsx'
+        data_excel = pd.read_excel(excel_file, sheet_name=0)
+        #print(data_excel)
+        data_excel = data_excel.fillna(0)
+        # print(data_excel)
+        rows = data_excel.shape[0]
+        columns = data_excel.shape[1]
+        # movies = movies.head(5)
+        # print(movies.get(key='Genres'))
+        # movies1 = movies.get(key='Genres')
+        # print(movies.shape[0])
+        username = self.username_Input.text()
+        password = self.password_Input.text()
+        world = self.world_Input.text()
+
+        if username == "" or password == "" or world == "":
+            self.error_dialog.setText("Brak lub za mało wprowadzonych danych w ramce 'LOGIN'")
+            self.error_dialog.exec_()
+            print("Brak lub za mało wprowadzonych danych w ramce 'LOGIN'")
+            return
+
+        for i in range(rows):
+            #print(i)
+            # date = data_excel.at[i, 'Action date'].strftime("%m/%d/%Y, %H:%M:%S.%f")[:-3]
+            # print(date)
+            hour = str(data_excel.at[i, 'Action date'].strftime("%H"))
+            minute = str(data_excel.at[i, 'Action date'].strftime("%M"))
+            second = str(data_excel.at[i, 'Action date'].strftime("%S"))
+            millisecond = str(data_excel.at[i, 'Action date'].strftime("%f")[:-3])
+
+            number_village = str(data_excel.at[i, 'Number village'])
+
+            coordinateXvillage = str(data_excel.at[i, 'Cordinate'])
+            # print(coordinateXvillage)
+            coordinateYvillage = ""
+            pikeman = int(data_excel.at[i, 'spear'])
+            swordfish = int(data_excel.at[i, 'sword'])
+            axeman = int(data_excel.at[i, 'axe'])
+            scout = int(data_excel.at[i, 'spy'])
+            lightcavalery = int(data_excel.at[i, 'light'])
+            heavycavalery = int(data_excel.at[i, 'heavy'])
+            ram = int(data_excel.at[i, 'ram'])
+            catapult = int(data_excel.at[i, 'catapult'])
+            knight = int(data_excel.at[i, 'knight'])
+            nobleman = int(data_excel.at[i, 'snob'])
+            # print(nobleman)
+            trooptraveltime_hour = str(data_excel.at[i, 'Troop travel time'].strftime("%H"))
+            trooptraveltime_minute = str(data_excel.at[i, 'Troop travel time'].strftime("%M"))
+            checkboxallarmy = bool(data_excel.at[i, 'All army'])
+            # print(checkboxallarmy)
+
+            self.thread4 = MyThread4(self.bot, username, password, world, hour, minute, second, millisecond,
+                                     number_village,
+                                     coordinateXvillage, coordinateYvillage, pikeman, swordfish, axeman, scout,
+                                     lightcavalery, heavycavalery, ram, catapult, knight, nobleman,
+                                     trooptraveltime_hour,
+                                     trooptraveltime_minute, checkboxallarmy)
+
+            if self.thread4.isRunning():
+                self.thread4.exiting = True
+                while self.thread4.isRunning():
+                    time.sleep(0.01)
+                    continue
+            else:
+                self.thread4.exiting = False
+                self.thread4.start()
+                while not self.thread4.isRunning():
+                    time.sleep(0.01)
+                    continue
+            time.sleep(0.5)
+
+    def buttonFarmersAssistant(self):
+        print("1")
+        '''
+        #settings
+        max_ressources = 99999
+        archers = 0
+        skip_level_1 = 0
+
+        #settings_spear
+        untouchable_spear = 0
+        max_unit_number_spear = 9999
+        conditional_safeguard_spear = 0
+
+        #settings_sword
+        untouchable_sword = 0
+        max_unit_number_sword = 9999
+        conditional_safeguard_sword = 0
+
+        #settings_axe
+        untouchable_axe = 0
+        max_unit_number_axe = 9999
+        conditional_safeguard_axe = 0
+
+        # settings_archer
+        untouchable_archer = 0
+        max_unit_number_archer = 9999
+        conditional_safeguard_archer = 0
+        '''
+        username = self.username_Input.text()
+        password = self.password_Input.text()
+        world = self.world_Input.text()
+
+        if username == "" or password == "" or world == "":
+            self.error_dialog.setText("Brak lub za mało wprowadzonych danych w ramce 'LOGIN'")
+            self.error_dialog.exec_()
+            print("Brak lub za mało wprowadzonych danych w ramce 'LOGIN'")
+            return
+
+        self.thread5 = MyThread5(self.bot, username, password, world)
+
+        if self.thread5.isRunning():
+            self.thread5.exiting = True
+            while self.thread5.isRunning():
+                time.sleep(0.01)
+                continue
+        else:
+            self.thread5.exiting = False
+            self.thread5.start()
+            while not self.thread5.isRunning():
+                time.sleep(0.01)
+                continue
 
     def createLayoutLogin(self):
         grid_layout = QGridLayout()
@@ -284,29 +484,44 @@ class Widget(QWidget):  # todo ustawianie ukąłdu widgetów oraz ich funkcji
         grid_layout.addWidget(millisecond_label, 0, 3, 1, 1)
         grid_layout.addWidget(self.input_Millisecond, 1, 3, 1, 1)
         grid_layout.addWidget(self.button_Wedge, 2, 0, 1, 4)
+        grid_layout.addWidget(self.led_Wedge, 2, 4, 1, 1)
+
+        # grid_layout.addWidget(self.button_BackArmy, 0, 5, 1, 1)
+        # grid_layout.addWidget(self.input_Numbervillage, 1, 0)
 
         self.wedge_Box.setLayout(grid_layout)
 
     def createLayoutTime(self):
         grid_layout = QGridLayout()
 
-        time_label = QLabel("Time")
+        # time_label = QLabel("Time")
 
-        grid_layout.addWidget(time_label, 0, 0, 1, 1)
-        grid_layout.addWidget(self.time_Input, 0, 1, 1, 1)
+        # grid_layout.addWidget(time_label, 0, 0, 1, 1)
+        grid_layout.addWidget(self.time_Input, 0, 0, 1, 1)
 
         self.time_Box.setLayout(grid_layout)
 
-    def createLayoutBackArmy(self):
+    def createLayoutOtherButton(self):
         grid_layout = QGridLayout()
 
-        self.button_BackArmy.setEnabled(False)
-        self.button_BackArmy.clicked.connect(self.buttonBackArmy)
+        self.button_BackArmyToBarb.setEnabled(False)
+        self.button_BackArmyToBarb.clicked.connect(self.buttonBackArmy)
+        self.button_WriteArmyToExcel.setEnabled(False)
+        self.button_WriteArmyToExcel.clicked.connect(self.buttonWriteArmyToExcel)
+        self.button_SendAutoAttackFromExcel.setEnabled(True)
+        self.button_SendAutoAttackFromExcel.clicked.connect(self.buttonSendAutoAttackFromExcel)
+        tips_label = QLabel("TIPS: Gdy używasz przycisku 'Send auto attack from EXCEL' to: WYPEŁNIJ POLA W RAMCJE "
+                            "LOGIN INACZEJ NIE ZADZIAŁA!!! ")
+        tips_label.setStyleSheet("background-color: yellow;  border: 2px solid black;")
+        tips_label.setFont(QFont('Calibri', 10))
+        tips_label.setWordWrap(TRUE)
+        tips_label.setMaximumSize(200, 200)
+        grid_layout.addWidget(self.button_BackArmyToBarb, 0, 0, 1, 1)
+        grid_layout.addWidget(self.button_WriteArmyToExcel, 1, 0, 1, 1)
+        grid_layout.addWidget(self.button_SendAutoAttackFromExcel, 2, 0, 1, 1)
+        grid_layout.addWidget(tips_label, 3, 0, 1, 1)
 
-        grid_layout.addWidget(self.button_BackArmy, 0, 0)
-        grid_layout.addWidget(self.input_Numbervillage, 1, 0)
-
-        self.backarmy_Box.setLayout(grid_layout)
+        self.otherbutton_Box.setLayout(grid_layout)
 
     def createLayoutSendAutoAttack(self):
         grid_layout = QGridLayout()
@@ -321,19 +536,19 @@ class Widget(QWidget):  # todo ustawianie ukąłdu widgetów oraz ich funkcji
                             "jeden zapisujemy jako dwa znaki,NIE JEDEN (00)->01,05,20 itp.\n"
                             "Gdy format jedt nie podany, nie jest konieczne usupełnienie danego pola, oprócz ramki LOGIN\n"
                             "Gdy chcemy wysłaś zautomatyzowany atak nie klikamy przycisku login, tylko Send auto attack\n"
-                            "UWAGA!!! Gdy przejdziesz do Trop travel time: to ta zakładka oznacza długość podróży\n"
+                            "UWAGA!!! Gdy przejdziesz do Troop travel time: to ta zakładka oznacza długość podróży\n"
                             "twoich wojsk(na plemionach jest to oznaczone jako trwanie)")
-        pikeman_label = QLabel()
-        swordfish_label = QLabel()
-        axeman_label = QLabel()
-        scout_label = QLabel()
-        lightcavalery_label = QLabel()
-        heavycavalery_label = QLabel()
-        ram_label = QLabel()
-        catapult_label = QLabel()
-        knight_label = QLabel()
-        nobleman_label = QLabel()
-        trooptraveltime_label = QLabel("Trop travel time:")
+        pikeman_label = QLabel(alignment=Qt.AlignRight)
+        swordfish_label = QLabel(alignment=Qt.AlignRight)
+        axeman_label = QLabel(alignment=Qt.AlignRight)
+        scout_label = QLabel(alignment=Qt.AlignRight)
+        lightcavalery_label = QLabel(alignment=Qt.AlignRight)
+        heavycavalery_label = QLabel(alignment=Qt.AlignRight)
+        ram_label = QLabel(alignment=Qt.AlignRight)
+        catapult_label = QLabel(alignment=Qt.AlignRight)
+        knight_label = QLabel(alignment=Qt.AlignRight)
+        nobleman_label = QLabel(alignment=Qt.AlignRight)
+        trooptraveltime_label = QLabel("Troop travel time:")
         trooptraveltimehour_label = QLabel("HOUR(00)")
         trooptraveltimeminute_label = QLabel("MIN(00)")
 
@@ -386,21 +601,35 @@ class Widget(QWidget):  # todo ustawianie ukąłdu widgetów oraz ich funkcji
         grid_layout.addWidget(self.input_Knight, 0, 9, 1, 1)
         grid_layout.addWidget(self.input_Nobleman, 1, 9, 1, 1)
 
+        grid_layout.addWidget(self.checkbox_all_army, 0, 10, 1, 1)
+
         grid_layout.addWidget(self.button_Sendautoattack, 5, 0, 1, 10)
 
         grid_layout.addWidget(tips_label, 6, 0, 1, 10)
 
         self.sendautoattack_Box.setLayout(grid_layout)
 
+    def createLayoutFarm(self):
+        grid_layout = QGridLayout()
+
+        self.button_FarmersAssistant.setEnabled(True)
+        self.button_FarmersAssistant.clicked.connect(self.buttonFarmersAssistant)
+
+        grid_layout.addWidget(self.button_FarmersAssistant, 0, 0, 1, 1)
+
+        self.farm_Box.setLayout(grid_layout)
+
 
 class MyThread1(QThread):  # todo klasa odpowiedzialna za aktualizacje czasu w aplikacji
-    def __init__(self, input, bot, buttonlogin, buttonwedge, buttobackarmy, ledlogin, parent=None):
+    def __init__(self, input, bot, buttonlogin, buttonwedge, buttonbackarmytobarb, buttonwritearmytoexcel,
+                 ledlogin, parent=None):
         QThread.__init__(self, parent)
         self.input = input
         self.bot = bot
         self.buttonlogin = buttonlogin
         self.buttonwedge = buttonwedge
-        self.buttobackarmy = buttobackarmy
+        self.buttonbackarmytobarb = buttonbackarmytobarb
+        self.buttonwritearmytoexcel = buttonwritearmytoexcel
         self.ledlogin = ledlogin
         self.exiting = False
 
@@ -411,28 +640,33 @@ class MyThread1(QThread):  # todo klasa odpowiedzialna za aktualizacje czasu w a
                 self.input.setText("00:00:00")
                 self.buttonlogin.setEnabled(True)
                 self.buttonwedge.setEnabled(False)
-                self.buttobackarmy.setEnabled(False)
+                self.buttonbackarmytobarb.setEnabled(False)
+                self.buttonwritearmytoexcel.setEnabled(False)
                 self.ledlogin.setOnColour(QLed.Red)
+                print("Przeglądarka została zakmnieta")
+                self.quit()
                 break
             self.input.setText(bool1)
             # sys.stdout.write('*')
             # sys.stdout.flush()
-            time.sleep(1)
+            self.sleep(1)
 
 
 class MyThread2(QThread):  # todo klasa odpowiedzialna za wywołanie klina
-    def __init__(self, bot, hour, minute, second, millisecond, parent=None):
+    def __init__(self, bot, hour, minute, second, millisecond, ledwedge, parent=None):
         QThread.__init__(self, parent)
         self.bot = bot
         self.hour = hour
         self.minute = minute
         self.second = second
         self.millisecond = millisecond
+        self.ledwedge = ledwedge
         self.exiting = False
 
     def run(self):
         # while self.exiting == False:
         self.bot.wedge(self.hour, self.minute, self.second, self.millisecond)
+        self.ledwedge.setOnColour(QLed.Red)
         self.exiting = True
         # self.exit()
 
@@ -446,17 +680,19 @@ class MyThread3(QThread):  # todo klasa odpowiedzialna za aktualizacje czasu w a
         self.exiting = False
 
     def run(self):
-        # while self.exiting == False:
-        self.bot.getBackArmy(self.world, self.number_village)
-        # sys.stdout.write('*')
-        # sys.stdout.flush()
-        # time.sleep(0.1)
+        while self.exiting == False:
+            if self.bot.getBackArmy() == True:
+                break
+            # sys.stdout.write('*')
+            # sys.stdout.flush()
+            self.sleep(0.03)
 
 
 class MyThread4(QThread):  # todo klasa odpowiedzialna za automatyczne wybranie wioski i jej zaatakowanie
     def __init__(self, bot, username, password, world, hour, minute, second, millisecond, number_village,
                  coordinateXvillage, coordinateYvillage, pikeman, swordfish, axeman, scout, lightcavalery,
-                 heavycavalery, ram, catapult, knight, nobleman, trooptraveltime_hour, trooptraveltime_minute, parent=None):
+                 heavycavalery, ram, catapult, knight, nobleman, trooptraveltime_hour, trooptraveltime_minute,
+                 checkboxallarmy, parent=None):
         QThread.__init__(self, parent)
         self.exiting = False
         self.bot = bot
@@ -482,17 +718,17 @@ class MyThread4(QThread):  # todo klasa odpowiedzialna za automatyczne wybranie 
         self.nobleman = nobleman
         self.trooptraveltime_hour = trooptraveltime_hour
         self.trooptraveltime_minute = trooptraveltime_minute
-
+        self.checkboxallarmy = checkboxallarmy
 
     def run(self):
         # while self.exiting == False:
-        #print().time().strftime("%H:%M:%S")
+        # print().time().strftime("%H:%M:%S")
         h = int(self.hour) - int(self.trooptraveltime_hour)
         m = int(self.minute) - int(self.trooptraveltime_minute) - 2
         if m < 0:
             m = 60 + m
             h = h - 1
-        if h < 0:
+        while h < 0:
             h = 24 + h
 
         if len(str(h)) < 2:
@@ -505,25 +741,66 @@ class MyThread4(QThread):  # todo klasa odpowiedzialna za automatyczne wybranie 
         else:
             m = str(m)
         hour = str(h) + ":" + str(m)
-        print(hour)
+        print("Zaplanowano zalogowanie sie na:", hour, "oraz wysłanie ataku do wioski", self.coordinateXvillage, "|",
+              self.coordinateYvillage, "z wioski numer:", self.number_village)
         while hour != datetime.now().strftime("%H:%M"):
-            time.sleep(60)
-
+            self.sleep(60)
         self.bot.signIn(self.username, self.password, self.world)
         self.bot.sendAutoAttack(self.world, self.number_village, self.coordinateXvillage, self.coordinateYvillage,
                                 self.pikeman, self.swordfish, self.axeman, self.scout, self.lightcavalery,
-                                self.heavycavalery, self.ram, self.catapult, self.knight, self.nobleman)
-        self.bot.wedge(self.hour, self.minute, self.second, self.millisecond)
+                                self.heavycavalery, self.ram, self.catapult, self.knight, self.nobleman,
+                                self.checkboxallarmy)
+        booll = self.bot.wedge(self.hour, self.minute, self.second, self.millisecond)
+        if booll:
+            print("Atak został wysłany do wioski:", self.coordinateXvillage, self.coordinateYvillage)
+            print("*************************************************************")
+        self.bot.closeWebDriver()
         self.bot.browser = None
 
+    #def __del__(self):
+    #    self.exiting = True
+     #   self.wait()
+        #self.stop()
+        #self.quit()
+        #self.terminate()
 
-class ParametersPlemiona:  # todo klasa w której analizowane są parametryw  przeglądarce a następnie poddawane obróbce
+class MyThread5(QThread):  # todo klasa odpowiedzialna za wywołanie klina
+    def __init__(self, bot, username, password, world, parent=None):
+        QThread.__init__(self, parent)
+        self.bot = bot
+        self.username = username
+        self.password = password
+        self.world = world
+        self.exiting = False
+
+    def run(self):
+        while not self.exiting:
+            self.bot.signIn(self.username, self.password, self.world)
+            self.bot.farm(self.world)
+            self.sleep(1)
+            time1 = self.bot.closeWebDriver()
+            print("Program zasypia na:", time1)
+            time1 = time.strptime(time1, '%H:%M:%S')
+            time1 = time1.tm_hour * 3600 + time1.tm_min * 60 + time1.tm_sec + 10
+            #time.sleep(time1)
+            self.sleep(time1)
+        self.exiting = True
+        # self.exit()
+
+
+class ParametersPlemiona:  # todo klasa w której analizowane są parametry w  przeglądarce a następnie poddawane obróbce
     def __init__(self):
         self.browser = None
 
     def signIn(self, username, password, world):
-        self.browser = webdriver.Chrome()
+        options = webdriver.ChromeOptions()
+        options.add_argument('window-position=2500,100')
+        self.browser = webdriver.Chrome(options=options)
+        #self.browser.set_window_position(2000, 200)
         self.browser.get('https://www.plemiona.pl/')
+        # self.browser.execute_script("window.open()")
+
+        # print(self.browser.current_window_handle)
         # time.sleep(1)
 
         usernameInput = self.browser.find_elements_by_css_selector('input')[1]
@@ -542,6 +819,8 @@ class ParametersPlemiona:  # todo klasa w której analizowane są parametryw  pr
         # worldInput = self.browser.find_element(By.XPATH,"/html/body/div[3]/div[4]/div[10]/div[3]/div[2]/div[1]/a[3]/span")
         # worldInput = self.browser.find_element(By.XPATH,"//a[@href='/page/play/pl152']")
         self.browser.get('https://www.plemiona.pl/' + 'page/play/pl' + world)
+        time.sleep(1)
+        # self.browser.execute_script("javascript: $(document).ready(function(){setInterval(function(){const e=new Date(Math.round(Timing.getCurrentServerTime()));var t=e.toLocaleTimeString()+':'+Math.floor(e.getMilliseconds()/100);e<10&&(t=0),$('#serverDate').text(t),$('#serverDate').attr('style','font-size: 10px;')},50)});")
         try:
             self.browser.find_element_by_id('serverTime')
         except NoSuchElementException:
@@ -560,40 +839,65 @@ class ParametersPlemiona:  # todo klasa w której analizowane są parametryw  pr
         '''
 
     def sendAutoAttack(self, world, number_village, coordinateXvillage, coordinateYvillage, pikeman, swordfish, axeman,
-                       scout, lightcavalery, heavycavalery, ram, catapult, knight, nobleman):
+                       scout, lightcavalery, heavycavalery, ram, catapult, knight, nobleman, checkboxallarmy):
         try:
-            self.browser.get('https://pl' + world + '.plemiona.pl' + '/game.php?village=n' + number_village + '&screen=place')
+            self.browser.get(
+                'https://pl' + world + '.plemiona.pl' + '/game.php?village=' + number_village + '&screen=place')
             time.sleep(1)
             self.browser.find_element_by_name('input').send_keys(coordinateXvillage + coordinateYvillage)
-            self.browser.find_element_by_id('unit_input_spear').send_keys(pikeman)
-            self.browser.find_element_by_id('unit_input_sword').send_keys(swordfish)
-            self.browser.find_element_by_id('unit_input_axe').send_keys(axeman)
-            self.browser.find_element_by_id('unit_input_spy').send_keys(scout)
-            self.browser.find_element_by_id('unit_input_light').send_keys(lightcavalery)
-            self.browser.find_element_by_id('unit_input_heavy').send_keys(heavycavalery)
-            self.browser.find_element_by_id('unit_input_ram').send_keys(ram)
-            self.browser.find_element_by_id('unit_input_catapult').send_keys(catapult)
-            self.browser.find_element_by_id('unit_input_knight').send_keys(knight)
-            self.browser.find_element_by_id('unit_input_snob').send_keys(nobleman)
+            if (checkboxallarmy == False):
+                self.browser.find_element_by_id('unit_input_spear').send_keys(pikeman)
+                self.browser.find_element_by_id('unit_input_sword').send_keys(swordfish)
+                self.browser.find_element_by_id('unit_input_axe').send_keys(axeman)
+                self.browser.find_element_by_id('unit_input_spy').send_keys(scout)
+                self.browser.find_element_by_id('unit_input_light').send_keys(lightcavalery)
+                self.browser.find_element_by_id('unit_input_heavy').send_keys(heavycavalery)
+                self.browser.find_element_by_id('unit_input_ram').send_keys(ram)
+                self.browser.find_element_by_id('unit_input_catapult').send_keys(catapult)
+                self.browser.find_element_by_id('unit_input_knight').send_keys(knight)
+                self.browser.find_element_by_id('unit_input_snob').send_keys(nobleman)
+            else:
+                self.browser.find_element_by_id('selectAllUnits').click()
+
             self.browser.find_element_by_id('target_attack').click()
+            #print("Atak został wysłany do wioski:", coordinateXvillage, coordinateYvillage)
+
         except NoSuchElementException:
             print("Brak elementu, wprowadź dane poprawnie")
 
-    def getBackArmy(self, world, number_village):
-        self.browser.get('https://pl' + world + '.plemiona.pl' + '/game.php?village=n' + number_village + '&screen=place')
+    def getBackArmy(self):
+        # self.browser.get('https://pl' + world + '.plemiona.pl' + '/game.php?village=n' + number_village + '&screen=place')
+        try:
+            button_napad = self.browser.find_element_by_id('target_attack')
+            button_napad.click()
+            # time.sleep(0.03)
+        except NoSuchElementException:
+            time.sleep(0.05)
+            self.browser.find_element_by_id('troop_confirm_go').click()
+            return True
+            # time.sleep(1)
+        # self.browser.find_element_by_id('troop_confirm_go').click()
 
     def getTimeAttack(self):
-        timer = self.browser.find_element_by_class_name('relative_time')
-        text = timer.text
-        textlength = len(text)
-        hour = text[textlength - 8] + text[textlength - 7] + text[textlength - 6] + text[textlength - 5] + text[
-            textlength - 4] + text[
-                   textlength - 3] + text[textlength - 2] + text[textlength - 1]
-        return hour
+        try:
+            timer = self.browser.find_element_by_class_name('relative_time')
+            if timer is not None:
+                text = timer.text
+                if text is not None:
+                    textlength = len(text)
+                    hour = text[textlength - 8] + text[textlength - 7] + text[textlength - 6] + text[textlength - 5] + text[
+                        textlength - 4] + text[textlength - 3] + text[textlength - 2] + text[textlength - 1]
+                    return hour
+                else:
+                    print("Brak elementu - relative_time")
+                    return
+        except NoSuchElementException or WebDriverException:
+            print("Przeglądarka zamknięta")
+            return False
 
     def getTime(self):
         try:
-            self.browser.find_element_by_id('serverTime')
+            # self.browser.find_element_by_id('serverTime')
             timer = self.browser.find_element_by_id('serverTime')
             return timer.text
         except NoSuchElementException:
@@ -601,7 +905,6 @@ class ParametersPlemiona:  # todo klasa w której analizowane są parametryw  pr
         except WebDriverException:
             self.browser = None
             return True
-
 
     def wedge(self, hour, minute, second, millisecond):
         action = True
@@ -612,8 +915,172 @@ class ParametersPlemiona:  # todo klasa w której analizowane są parametryw  pr
             if self.getTimeAttack() == hour2:
                 time.sleep(mili)
                 self.browser.find_element_by_id('troop_confirm_go').click()
+                print("Wysłano atak", hour2, millisecond)
+                action = False
+                return True
+            if not self.getTimeAttack():
                 action = False
 
+    def writeArmyToExcel(self, world):
+        self.browser.get('https://pl' + world + '.plemiona.pl' + '/game.php?screen=ally&mode=members_defense')
+        time.sleep(0.1)
+        select = Select(self.browser.find_element_by_name("player_id")).options
+        # select1 = Select(self.browser.find_element_by_name("player_id"))
+        # select = self.browser.find_element_by_name("player_id")
+        select.pop(0)
+        # print(select1)
+        tab_nick = []
+        for i in select:
+            # print(i.text, i.get_attribute("value"))
+            tab_nick.append(i.get_attribute("value"))
+            # Select(self.browser.find_element_by_name("player_id")).select_by_value(i.get_attribute("value"))
+            time.sleep(0.05)
+        print(tab_nick)
+        time.sleep(1)
+
+        for i in tab_nick:
+            Select(self.browser.find_element_by_name("player_id")).select_by_value(i)
+            time.sleep(1)
+            # print(self.browser.find_element_by_class_name("table-responsive").text)
+            # self.browser.find_element_by_class_name("table-responsive").text
+            time.sleep(1)
+
+    def closeWebDriver(self):
+        try:
+            self.browser.close()
+            self.browser.quit()
+        except NoSuchWindowException or WebDriverException:
+            print("Przeglądarka została zamknięta przez użytkownika")
+
+    def farm(self, world):
+        try:
+            self.browser.get('https://pl' + world + '.plemiona.pl' + '/game.php?screen=place&mode=scavenge')
+            spear = int(self.browser.find_elements_by_css_selector('a')[97].text[1:-1])
+            sword = int(self.browser.find_elements_by_css_selector('a')[98].text[1:-1])
+            axe = int(self.browser.find_elements_by_css_selector('a')[99].text[1:-1])
+            archer = int(self.browser.find_elements_by_css_selector('a')[100].text[1:-1])
+            light = int(self.browser.find_elements_by_css_selector('a')[101].text[1:-1])
+            marcher = int(self.browser.find_elements_by_css_selector('a')[102].text[1:-1])
+            heavy = int(self.browser.find_elements_by_css_selector('a')[103].text[1:-1])
+            print(spear, sword, axe, archer, light, marcher, heavy)
+
+            carry_max = spear * 25 + sword * 15 + axe * 10 + archer * 10 + light * 80 + marcher * 50 + heavy * 50
+
+            carry_max_all = [carry_max * 0.557, carry_max * 0.231, carry_max * 0.115, carry_max * 0.077]
+
+            timee = ""
+            x = 106
+            y = 54
+            for i in range(4):
+                if spear > 0:
+                    carry_max_all[i] /= 25
+                    if spear >= carry_max_all[i]:
+                        self.browser.find_element_by_name('spear').send_keys(int(carry_max_all[i]))
+                        spear -= carry_max_all[i]
+                        carry_max_all[i] = 0
+                    else:
+                        spear1 = carry_max_all[i] - spear
+                        carry_max_all[i] = spear1 * 25
+                        self.browser.find_element_by_name('spear').send_keys(int(spear))
+
+                if sword > 0 and carry_max_all[i] > 0:
+                    carry_max_all[i] /= 15
+                    if sword >= carry_max_all[i]:
+                        self.browser.find_element_by_name('sword').send_keys(int(carry_max_all[i]))
+                        sword -= carry_max_all[i]
+                        carry_max_all[i] = 0
+                    else:
+                        sword1 = carry_max_all[i] - sword
+                        carry_max_all[i] = sword1 * 15
+                        self.browser.find_element_by_name('sword').send_keys(int(sword))
+
+                if axe > 0 and carry_max_all[i] > 0:
+                    carry_max_all[i] /= 10
+                    if axe >= carry_max_all[i]:
+                        self.browser.find_element_by_name('axe').send_keys(int(carry_max_all[i]))
+                        axe -= carry_max_all[i]
+                        carry_max_all[i] = 0
+                    else:
+                        axe1 = carry_max_all[i] - axe
+                        carry_max_all[i] = axe1 * 15
+                        self.browser.find_element_by_name('axe').send_keys(int(axe))
+
+                if archer > 0 and carry_max_all[i] > 0:
+                    carry_max_all[i] /= 10
+                    if archer >= carry_max_all[i]:
+                        self.browser.find_element_by_name('archer').send_keys(int(carry_max_all[i]))
+                        archer -= carry_max_all[i]
+                        carry_max_all[i] = 0
+                    else:
+                        archer1 = carry_max_all[i] - archer
+                        carry_max_all[i] = archer1 * 15
+                        self.browser.find_element_by_name('archer').send_keys(int(archer))
+
+                if light > 0 and carry_max_all[i] > 0:
+                    carry_max_all[i] /= 80
+                    if light >= carry_max_all[i]:
+                        self.browser.find_element_by_name('light').send_keys(int(carry_max_all[i]))
+                        light -= carry_max_all[i]
+                        carry_max_all[i] = 0
+                    else:
+                        light1 = carry_max_all[i] - light
+                        carry_max_all[i] = light1 * 15
+                        self.browser.find_element_by_name('light').send_keys(int(light))
+
+                if marcher > 0 and carry_max_all[i] > 0:
+                    carry_max_all[i] /= 50
+                    if marcher >= carry_max_all[i]:
+                        self.browser.find_element_by_name('marcher').send_keys(int(carry_max_all[i]))
+                        marcher -= carry_max_all[i]
+                        carry_max_all[i] = 0
+                    else:
+                        marcher1 = carry_max_all[i] - marcher
+                        carry_max_all[i] = marcher1 * 15
+                        self.browser.find_element_by_name('marcher').send_keys(int(marcher))
+
+                if heavy > 0 and carry_max_all[i] > 0:
+                    carry_max_all[i] /= 50
+                    if heavy >= carry_max_all[i]:
+                        self.browser.find_element_by_name('heavy').send_keys(int(carry_max_all[i]))
+                        heavy -= carry_max_all[i]
+                        carry_max_all[i] = 0
+                    else:
+                        heavy1 = carry_max_all[i] - heavy
+                        carry_max_all[i] = heavy1 * 15
+                        self.browser.find_element_by_name('heavy').send_keys(int(heavy))
+                if timee < self.browser.find_elements_by_css_selector('a')[y].text:
+                    timee = self.browser.find_elements_by_css_selector('a')[y].text
+                print(timee)
+                time.sleep(5)
+
+                self.browser.find_elements_by_css_selector('a')[x].click()
+                x += 2
+                y += 11
+                time.sleep(5)
+            return str(timee)
+                # //*[@id="scavenge_screen"]/div/div[2]/div[1]/div[3]/div/div[2]/a[1]
+                # //*[@id="scavenge_screen"]/div/div[2]/div[2]/div[3]/div/div[2]/a[1]
+                # //*[@id="scavenge_screen"]/div/div[2]/div[3]/div[3]/div/div[2]/a[1]
+                # //*[@id="scavenge_screen"]/div/div[2]/div[4]/div[3]/div/div[2]/a[1]
+        except NoSuchElementException:
+            print("Brak przeglądu placu")
+            return "Brak zalogowania"
+        
+        '''
+        # 0,557 0,231 0,115 0,077
+        for i in tab_nick:
+            self.browser.find_element_by_name("player_id").
+            #i+=1
+            #time.sleep(1)
+       # self.browser.find_element_by_name("player_id").select_by_value('699865715')
+        try:
+            print('1')
+        except:
+            print("text")
+        '''
+
+
+# game.php?village=7124&screen=am_farm
 
 # bot.signin()
 app = QApplication(sys.argv)

@@ -1,63 +1,26 @@
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
 # import tkinter as tk
-=======
-import tkinter as tk
->>>>>>> parent of ad730fc... Aktualizacja 09.09.2020
-=======
-import tkinter as tk
->>>>>>> parent of ad730fc... Aktualizacja 09.09.2020
-=======
-import tkinter as tk
->>>>>>> parent of ad730fc... Aktualizacja 09.09.2020
 from tkinter import *
 
-from PyQt5.QtCore import QThread, pyqtSignal
-from PyQt5.QtGui import QIcon, QPixmap
+from PyQt5.QtCore import *
+from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
 # from PyQt5.uic.properties import QtCore
-=======
->>>>>>> parent of ad730fc... Aktualizacja 09.09.2020
-=======
->>>>>>> parent of ad730fc... Aktualizacja 09.09.2020
-=======
->>>>>>> parent of ad730fc... Aktualizacja 09.09.2020
 from PyQt5.uic.properties import QtCore
 
 from selenium import webdriver  # todo import webdriver
 from selenium.webdriver.common.by import By  # todo import By for XPATH
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
 from selenium.common.exceptions import NoSuchElementException, WebDriverException, NoSuchWindowException
 from selenium.webdriver.support.select import Select
 # from selenium.webdriver.support import expected_conditions as EC
-=======
-from selenium.common.exceptions import NoSuchElementException, WebDriverException
->>>>>>> parent of ad730fc... Aktualizacja 09.09.2020
-=======
-from selenium.common.exceptions import NoSuchElementException, WebDriverException
->>>>>>> parent of ad730fc... Aktualizacja 09.09.2020
-=======
-from selenium.common.exceptions import NoSuchElementException, WebDriverException
->>>>>>> parent of ad730fc... Aktualizacja 09.09.2020
 
 import time
-from datetime import datetime, timedelta
+from datetime import datetime
 from selenium.webdriver.common.keys import Keys
 
 from QLed import QLed
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
 from selenium.webdriver.support.wait import WebDriverWait
 
 import pandas as pd
-
 '''
 time1 ="1:32:21"
 time1 = time.strptime(time1, '%H:%M:%S')
@@ -65,14 +28,6 @@ print(time1.tm_hour)
 print(time1.tm_min)
 print(time1.tm_sec)
 '''
-=======
->>>>>>> parent of ad730fc... Aktualizacja 09.09.2020
-=======
->>>>>>> parent of ad730fc... Aktualizacja 09.09.2020
-=======
->>>>>>> parent of ad730fc... Aktualizacja 09.09.2020
-
-
 class PlemionaBot(QMainWindow):  # todo klasa odpowiada za wywołąnie wszystkich elementów okna MainWindow
     def __init__(self):
         super(PlemionaBot, self).__init__()
@@ -118,34 +73,21 @@ class Widget(QWidget):  # todo ustawianie ukąłdu widgetów oraz ich funkcji
         self.input_Minute = QLineEdit()
         self.input_Second = QLineEdit()
         self.input_Millisecond = QLineEdit()
+        self.led_Wedge = QLed(shape=QLed.Circle, onColour=QLed.Red, value=True)
         self.wedge_Box = QGroupBox("WEDGE")
         self.input_Hour.setFixedSize(50, 20)
         self.input_Minute.setFixedSize(50, 20)
         self.input_Second.setFixedSize(50, 20)
         self.input_Millisecond.setFixedSize(50, 20)
+        self.led_Wedge.setFixedSize(20, 20)
 
-        self.time_Input = QLineEdit()
+        self.time_Input = QLineEdit("00:00:00")
         self.time_Box = QGroupBox("TIME")
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
         self.button_BackArmyToBarb = QPushButton("Back army to barba")
         self.button_WriteArmyToExcel = QPushButton("Write army to excel")
         self.button_SendAutoAttackFromExcel = QPushButton("Send auto attack from EXCEL")
         self.otherbutton_Box = QGroupBox("BUTTON")
-=======
-        self.button_BackArmy = QPushButton("Back")
-        self.backarmy_Box = QGroupBox("BACK")
->>>>>>> parent of ad730fc... Aktualizacja 09.09.2020
-=======
-        self.button_BackArmy = QPushButton("Back")
-        self.backarmy_Box = QGroupBox("BACK")
->>>>>>> parent of ad730fc... Aktualizacja 09.09.2020
-=======
-        self.button_BackArmy = QPushButton("Back")
-        self.backarmy_Box = QGroupBox("BACK")
->>>>>>> parent of ad730fc... Aktualizacja 09.09.2020
 
         self.button_Sendautoattack = QPushButton("Send auto attack")
         self.input_Numbervillage = QLineEdit()
@@ -179,9 +121,6 @@ class Widget(QWidget):  # todo ustawianie ukąłdu widgetów oraz ich funkcji
         self.input_Nobleman.setFixedSize(50, 20)
         self.input_Trooptraveltimehour.setFixedSize(50, 20)
         self.input_Trooptraveltimeminute.setFixedSize(50, 20)
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
         self.checkbox_all_army = QCheckBox('All Army')
         # self.checkbox_all_army.stateChanged.connect(self.checkboxAllArmy)
 
@@ -197,38 +136,29 @@ class Widget(QWidget):  # todo ustawianie ukąłdu widgetów oraz ich funkcji
 
         self.button_FarmersAssistant = QPushButton("Farmer's assistant")
         self.farm_Box = QGroupBox("FARM")
-=======
->>>>>>> parent of ad730fc... Aktualizacja 09.09.2020
-=======
->>>>>>> parent of ad730fc... Aktualizacja 09.09.2020
-=======
->>>>>>> parent of ad730fc... Aktualizacja 09.09.2020
 
         self.createLayoutLogin()
         self.createLayoutWedge()
         self.createLayoutTime()
-        self.createLayoutBackArmy()
+        self.createLayoutOtherButton()
         self.createLayoutSendAutoAttack()
         self.createLayoutFarm()
-
-        self.thread1 = MyThread1(self.time_Input, self.bot, self.button_Login, self.button_Wedge, self.button_BackArmy, self.led_Login)
-        self.thread3 = MyThread3(self.bot, self.world_Input, self.input_Numbervillage)
-
-        self.thread1 = MyThread1(self.time_Input, self.bot, self.button_Login, self.button_Wedge, self.button_BackArmy, self.led_Login)
-        self.thread3 = MyThread3(self.bot, self.world_Input, self.input_Numbervillage)
-
-        self.thread1 = MyThread1(self.time_Input, self.bot, self.button_Login, self.button_Wedge, self.button_BackArmy, self.led_Login)
-        self.thread3 = MyThread3(self.bot, self.world_Input, self.input_Numbervillage)
 
         box = QGridLayout()
         box.addWidget(self.login_Box, 0, 0, 2, 10)
         box.addWidget(self.wedge_Box, 0, 10, 1, 8)
-        box.addWidget(self.backarmy_Box, 1, 10, 1, 20)
         box.addWidget(self.time_Box, 2, 0, 1, 10)
+        box.addWidget(self.otherbutton_Box, 3, 0, 1, 10)
         box.addWidget(self.sendautoattack_Box, 2, 10, 10, 20)
-        # box.addWidget(self.farm_Box, 0, 18, 2, 12)
+        #box.addWidget(self.farm_Box, 0, 18, 2, 12)
 
         self.setLayout(box)
+
+    def checkboxAllArmy(self, state):
+        if Qt.Checked == state:
+            print(self.checkbox_all_army.isChecked())
+        else:
+            print(self.checkbox_all_army.isChecked())
 
     def buttonLogin(self):
         bool1 = True
@@ -248,10 +178,13 @@ class Widget(QWidget):  # todo ustawianie ukąłdu widgetów oraz ich funkcji
         if bool1 != False:
             self.button_Login.setEnabled(False)
             self.button_Wedge.setEnabled(True)
-            self.button_BackArmy.setEnabled(True)
+            self.button_BackArmyToBarb.setEnabled(True)
+            self.button_WriteArmyToExcel.setEnabled(True)
             self.led_Login.setOnColour(QLed.Green)
         # self.thrend1.terminated.connect(self.printed)
         # self.thrend1.started.connect(self.timerApp)
+        self.thread1 = MyThread1(self.time_Input, self.bot, self.button_Login, self.button_Wedge,
+                                 self.button_BackArmyToBarb, self.button_WriteArmyToExcel, self.led_Login)
         if self.thread1.isRunning():
             self.thread1.exiting = True
             while self.thread1.isRunning():
@@ -276,9 +209,6 @@ class Widget(QWidget):  # todo ustawianie ukąłdu widgetów oraz ich funkcji
         second = self.input_Second.text()
         millisecond = self.input_Millisecond.text()
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
         if hour == "" or minute == "" or second == "" or millisecond == "":
             self.error_dialog.setText("Brak lub za mało wprowadzonych danych w ramce 'WEDGE'")
             self.error_dialog.exec_()
@@ -287,15 +217,6 @@ class Widget(QWidget):  # todo ustawianie ukąłdu widgetów oraz ich funkcji
 
         self.led_Wedge.setOnColour(QLed.Green)
         self.thrend2 = MyThread2(self.bot, hour, minute, second, millisecond, self.led_Wedge)
-=======
-        self.thrend2 = MyThread2(self.bot, hour, minute, second, millisecond)
->>>>>>> parent of ad730fc... Aktualizacja 09.09.2020
-=======
-        self.thrend2 = MyThread2(self.bot, hour, minute, second, millisecond)
->>>>>>> parent of ad730fc... Aktualizacja 09.09.2020
-=======
-        self.thrend2 = MyThread2(self.bot, hour, minute, second, millisecond)
->>>>>>> parent of ad730fc... Aktualizacja 09.09.2020
         if self.thrend2.isRunning():
             self.thrend2.exiting = True
             while self.thrend2.isRunning():
@@ -309,6 +230,7 @@ class Widget(QWidget):  # todo ustawianie ukąłdu widgetów oraz ich funkcji
                 continue
 
     def buttonBackArmy(self):
+        self.thread3 = MyThread3(self.bot, self.world_Input, self.input_Numbervillage)
         if self.thread3.isRunning():
             self.thread3.exiting = True
             while self.thread3.isRunning():
@@ -321,20 +243,16 @@ class Widget(QWidget):  # todo ustawianie ukąłdu widgetów oraz ich funkcji
                 time.sleep(0.01)
                 continue
 
+    def buttonWriteArmyToExcel(self):
+        self.bot.WriteArmyToExcel(self.world_Input.text())
+
+    def timerApp(self):
+        self.time_Input.clear()
+        self.time_Input.setText(self.bot.getTime())
+        # self.thrend1.on_source(self, self.bot.getTime)
+
     def buttonSendAttack(self):
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
         # self.button_Login.setEnabled(False)
-=======
-        self.button_Login.setEnabled(False)
->>>>>>> parent of ad730fc... Aktualizacja 09.09.2020
-=======
-        self.button_Login.setEnabled(False)
->>>>>>> parent of ad730fc... Aktualizacja 09.09.2020
-=======
-        self.button_Login.setEnabled(False)
->>>>>>> parent of ad730fc... Aktualizacja 09.09.2020
         hour = self.input_Hour.text()
         minute = self.input_Minute.text()
         second = self.input_Second.text()
@@ -360,9 +278,6 @@ class Widget(QWidget):  # todo ustawianie ukąłdu widgetów oraz ich funkcji
         nobleman = self.input_Nobleman.text()
         trooptraveltime_hour = self.input_Trooptraveltimehour.text()
         trooptraveltime_minute = self.input_Trooptraveltimeminute.text()
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
         checkboxallarmy = self.checkbox_all_army.isChecked()
 
         if username == "" or password == "" or world == "":
@@ -382,17 +297,11 @@ class Widget(QWidget):  # todo ustawianie ukąłdu widgetów oraz ich funkcji
             self.error_dialog.exec_()
             print("Brak lub za mało wprowadzonych danych w ramce 'SEND AUTO ATTACK'")
             return
-=======
->>>>>>> parent of ad730fc... Aktualizacja 09.09.2020
-=======
->>>>>>> parent of ad730fc... Aktualizacja 09.09.2020
-=======
->>>>>>> parent of ad730fc... Aktualizacja 09.09.2020
 
         self.thread4 = MyThread4(self.bot, username, password, world, hour, minute, second, millisecond, number_village,
                                  coordinateXvillage, coordinateYvillage, pikeman, swordfish, axeman, scout,
                                  lightcavalery, heavycavalery, ram, catapult, knight, nobleman, trooptraveltime_hour,
-                                 trooptraveltime_minute)
+                                 trooptraveltime_minute, checkboxallarmy)
 
         if self.thread4.isRunning():
             self.thread4.exiting = True
@@ -406,13 +315,10 @@ class Widget(QWidget):  # todo ustawianie ukąłdu widgetów oraz ich funkcji
                 time.sleep(0.01)
                 continue
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
     def buttonSendAutoAttackFromExcel(self):
         excel_file = 'plemiona.xlsx'
         data_excel = pd.read_excel(excel_file, sheet_name=0)
-        # print(data_excel)
+        #print(data_excel)
         data_excel = data_excel.fillna(0)
         # print(data_excel)
         rows = data_excel.shape[0]
@@ -432,7 +338,7 @@ class Widget(QWidget):  # todo ustawianie ukąłdu widgetów oraz ich funkcji
             return
 
         for i in range(rows):
-            # print(i)
+            #print(i)
             # date = data_excel.at[i, 'Action date'].strftime("%m/%d/%Y, %H:%M:%S.%f")[:-3]
             # print(date)
             hour = str(data_excel.at[i, 'Action date'].strftime("%H"))
@@ -532,22 +438,6 @@ class Widget(QWidget):  # todo ustawianie ukąłdu widgetów oraz ich funkcji
             while not self.thread5.isRunning():
                 time.sleep(0.01)
                 continue
-=======
-=======
->>>>>>> parent of ad730fc... Aktualizacja 09.09.2020
-=======
->>>>>>> parent of ad730fc... Aktualizacja 09.09.2020
-    def timerApp(self):
-        self.time_Input.clear()
-        self.time_Input.setText(self.bot.getTime())
-        # self.thrend1.on_source(self, self.bot.getTime)
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> parent of ad730fc... Aktualizacja 09.09.2020
-=======
->>>>>>> parent of ad730fc... Aktualizacja 09.09.2020
-=======
->>>>>>> parent of ad730fc... Aktualizacja 09.09.2020
 
     def createLayoutLogin(self):
         grid_layout = QGridLayout()
@@ -594,59 +484,26 @@ class Widget(QWidget):  # todo ustawianie ukąłdu widgetów oraz ich funkcji
         grid_layout.addWidget(millisecond_label, 0, 3, 1, 1)
         grid_layout.addWidget(self.input_Millisecond, 1, 3, 1, 1)
         grid_layout.addWidget(self.button_Wedge, 2, 0, 1, 4)
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
         grid_layout.addWidget(self.led_Wedge, 2, 4, 1, 1)
 
         # grid_layout.addWidget(self.button_BackArmy, 0, 5, 1, 1)
         # grid_layout.addWidget(self.input_Numbervillage, 1, 0)
-=======
->>>>>>> parent of ad730fc... Aktualizacja 09.09.2020
-=======
->>>>>>> parent of ad730fc... Aktualizacja 09.09.2020
-=======
->>>>>>> parent of ad730fc... Aktualizacja 09.09.2020
 
         self.wedge_Box.setLayout(grid_layout)
 
     def createLayoutTime(self):
         grid_layout = QGridLayout()
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
         # time_label = QLabel("Time")
 
         # grid_layout.addWidget(time_label, 0, 0, 1, 1)
         grid_layout.addWidget(self.time_Input, 0, 0, 1, 1)
-=======
-        time_label = QLabel("Time")
-
-        grid_layout.addWidget(time_label, 0, 0, 1, 1)
-        grid_layout.addWidget(self.time_Input, 0, 1, 1, 1)
->>>>>>> parent of ad730fc... Aktualizacja 09.09.2020
-=======
-        time_label = QLabel("Time")
-
-        grid_layout.addWidget(time_label, 0, 0, 1, 1)
-        grid_layout.addWidget(self.time_Input, 0, 1, 1, 1)
->>>>>>> parent of ad730fc... Aktualizacja 09.09.2020
-=======
-        time_label = QLabel("Time")
-
-        grid_layout.addWidget(time_label, 0, 0, 1, 1)
-        grid_layout.addWidget(self.time_Input, 0, 1, 1, 1)
->>>>>>> parent of ad730fc... Aktualizacja 09.09.2020
 
         self.time_Box.setLayout(grid_layout)
 
-    def createLayoutBackArmy(self):
+    def createLayoutOtherButton(self):
         grid_layout = QGridLayout()
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
         self.button_BackArmyToBarb.setEnabled(False)
         self.button_BackArmyToBarb.clicked.connect(self.buttonBackArmy)
         self.button_WriteArmyToExcel.setEnabled(False)
@@ -663,25 +520,8 @@ class Widget(QWidget):  # todo ustawianie ukąłdu widgetów oraz ich funkcji
         grid_layout.addWidget(self.button_WriteArmyToExcel, 1, 0, 1, 1)
         grid_layout.addWidget(self.button_SendAutoAttackFromExcel, 2, 0, 1, 1)
         grid_layout.addWidget(tips_label, 3, 0, 1, 1)
-=======
-=======
->>>>>>> parent of ad730fc... Aktualizacja 09.09.2020
-=======
->>>>>>> parent of ad730fc... Aktualizacja 09.09.2020
-        self.button_BackArmy.setEnabled(False)
-        self.button_BackArmy.clicked.connect(self.buttonBackArmy)
 
-        grid_layout.addWidget(self.button_BackArmy, 0, 0)
-        grid_layout.addWidget(self.input_Numbervillage, 1, 0)
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> parent of ad730fc... Aktualizacja 09.09.2020
-=======
->>>>>>> parent of ad730fc... Aktualizacja 09.09.2020
-=======
->>>>>>> parent of ad730fc... Aktualizacja 09.09.2020
-
-        self.backarmy_Box.setLayout(grid_layout)
+        self.otherbutton_Box.setLayout(grid_layout)
 
     def createLayoutSendAutoAttack(self):
         grid_layout = QGridLayout()
@@ -698,9 +538,6 @@ class Widget(QWidget):  # todo ustawianie ukąłdu widgetów oraz ich funkcji
                             "Gdy chcemy wysłaś zautomatyzowany atak nie klikamy przycisku login, tylko Send auto attack\n"
                             "UWAGA!!! Gdy przejdziesz do Troop travel time: to ta zakładka oznacza długość podróży\n"
                             "twoich wojsk(na plemionach jest to oznaczone jako trwanie)")
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
         pikeman_label = QLabel(alignment=Qt.AlignRight)
         swordfish_label = QLabel(alignment=Qt.AlignRight)
         axeman_label = QLabel(alignment=Qt.AlignRight)
@@ -712,23 +549,6 @@ class Widget(QWidget):  # todo ustawianie ukąłdu widgetów oraz ich funkcji
         knight_label = QLabel(alignment=Qt.AlignRight)
         nobleman_label = QLabel(alignment=Qt.AlignRight)
         trooptraveltime_label = QLabel("Troop travel time:")
-=======
-=======
->>>>>>> parent of ad730fc... Aktualizacja 09.09.2020
-=======
->>>>>>> parent of ad730fc... Aktualizacja 09.09.2020
-        pikeman_label = QLabel()
-        swordfish_label = QLabel()
-        axeman_label = QLabel()
-        scout_label = QLabel()
-        lightcavalery_label = QLabel()
-        heavycavalery_label = QLabel()
-        ram_label = QLabel()
-        catapult_label = QLabel()
-        knight_label = QLabel()
-        nobleman_label = QLabel()
-        trooptraveltime_label = QLabel("Trop travel time:")
->>>>>>> parent of ad730fc... Aktualizacja 09.09.2020
         trooptraveltimehour_label = QLabel("HOUR(00)")
         trooptraveltimeminute_label = QLabel("MIN(00)")
 
@@ -781,6 +601,8 @@ class Widget(QWidget):  # todo ustawianie ukąłdu widgetów oraz ich funkcji
         grid_layout.addWidget(self.input_Knight, 0, 9, 1, 1)
         grid_layout.addWidget(self.input_Nobleman, 1, 9, 1, 1)
 
+        grid_layout.addWidget(self.checkbox_all_army, 0, 10, 1, 1)
+
         grid_layout.addWidget(self.button_Sendautoattack, 5, 0, 1, 10)
 
         grid_layout.addWidget(tips_label, 6, 0, 1, 10)
@@ -799,13 +621,15 @@ class Widget(QWidget):  # todo ustawianie ukąłdu widgetów oraz ich funkcji
 
 
 class MyThread1(QThread):  # todo klasa odpowiedzialna za aktualizacje czasu w aplikacji
-    def __init__(self, input, bot, buttonlogin, buttonwedge, buttobackarmy, ledlogin, parent=None):
+    def __init__(self, input, bot, buttonlogin, buttonwedge, buttonbackarmytobarb, buttonwritearmytoexcel,
+                 ledlogin, parent=None):
         QThread.__init__(self, parent)
         self.input = input
         self.bot = bot
         self.buttonlogin = buttonlogin
         self.buttonwedge = buttonwedge
-        self.buttobackarmy = buttobackarmy
+        self.buttonbackarmytobarb = buttonbackarmytobarb
+        self.buttonwritearmytoexcel = buttonwritearmytoexcel
         self.ledlogin = ledlogin
         self.exiting = False
 
@@ -816,35 +640,33 @@ class MyThread1(QThread):  # todo klasa odpowiedzialna za aktualizacje czasu w a
                 self.input.setText("00:00:00")
                 self.buttonlogin.setEnabled(True)
                 self.buttonwedge.setEnabled(False)
-                self.buttobackarmy.setEnabled(False)
+                self.buttonbackarmytobarb.setEnabled(False)
+                self.buttonwritearmytoexcel.setEnabled(False)
                 self.ledlogin.setOnColour(QLed.Red)
+                print("Przeglądarka została zakmnieta")
+                self.quit()
                 break
             self.input.setText(bool1)
             # sys.stdout.write('*')
             # sys.stdout.flush()
-<<<<<<< HEAD
             self.sleep(1)
-=======
-            time.sleep(1)
 
-<<<<<<< HEAD
->>>>>>> parent of ad730fc... Aktualizacja 09.09.2020
-=======
->>>>>>> parent of ad730fc... Aktualizacja 09.09.2020
 
 class MyThread2(QThread):  # todo klasa odpowiedzialna za wywołanie klina
-    def __init__(self, bot, hour, minute, second, millisecond, parent=None):
+    def __init__(self, bot, hour, minute, second, millisecond, ledwedge, parent=None):
         QThread.__init__(self, parent)
         self.bot = bot
         self.hour = hour
         self.minute = minute
         self.second = second
         self.millisecond = millisecond
+        self.ledwedge = ledwedge
         self.exiting = False
 
     def run(self):
         # while self.exiting == False:
         self.bot.wedge(self.hour, self.minute, self.second, self.millisecond)
+        self.ledwedge.setOnColour(QLed.Red)
         self.exiting = True
         # self.exit()
 
@@ -858,38 +680,19 @@ class MyThread3(QThread):  # todo klasa odpowiedzialna za aktualizacje czasu w a
         self.exiting = False
 
     def run(self):
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
         while self.exiting == False:
             if self.bot.getBackArmy() == True:
                 break
             # sys.stdout.write('*')
             # sys.stdout.flush()
             self.sleep(0.03)
-=======
-=======
->>>>>>> parent of ad730fc... Aktualizacja 09.09.2020
-=======
->>>>>>> parent of ad730fc... Aktualizacja 09.09.2020
-        # while self.exiting == False:
-        self.bot.getBackArmy(self.world, self.number_village)
-        # sys.stdout.write('*')
-        # sys.stdout.flush()
-        # time.sleep(0.1)
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> parent of ad730fc... Aktualizacja 09.09.2020
-=======
->>>>>>> parent of ad730fc... Aktualizacja 09.09.2020
-=======
->>>>>>> parent of ad730fc... Aktualizacja 09.09.2020
 
 
 class MyThread4(QThread):  # todo klasa odpowiedzialna za automatyczne wybranie wioski i jej zaatakowanie
     def __init__(self, bot, username, password, world, hour, minute, second, millisecond, number_village,
                  coordinateXvillage, coordinateYvillage, pikeman, swordfish, axeman, scout, lightcavalery,
-                 heavycavalery, ram, catapult, knight, nobleman, trooptraveltime_hour, trooptraveltime_minute, parent=None):
+                 heavycavalery, ram, catapult, knight, nobleman, trooptraveltime_hour, trooptraveltime_minute,
+                 checkboxallarmy, parent=None):
         QThread.__init__(self, parent)
         self.exiting = False
         self.bot = bot
@@ -915,13 +718,7 @@ class MyThread4(QThread):  # todo klasa odpowiedzialna za automatyczne wybranie 
         self.nobleman = nobleman
         self.trooptraveltime_hour = trooptraveltime_hour
         self.trooptraveltime_minute = trooptraveltime_minute
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
->>>>>>> parent of ad730fc... Aktualizacja 09.09.2020
-
->>>>>>> parent of ad730fc... Aktualizacja 09.09.2020
+        self.checkboxallarmy = checkboxallarmy
 
     def run(self):
         # while self.exiting == False:
@@ -931,7 +728,7 @@ class MyThread4(QThread):  # todo klasa odpowiedzialna za automatyczne wybranie 
         if m < 0:
             m = 60 + m
             h = h - 1
-        if h < 0:
+        while h < 0:
             h = 24 + h
 
         if len(str(h)) < 2:
@@ -944,11 +741,9 @@ class MyThread4(QThread):  # todo klasa odpowiedzialna za automatyczne wybranie 
         else:
             m = str(m)
         hour = str(h) + ":" + str(m)
-        print(hour)
+        print("Zaplanowano zalogowanie sie na:", hour, "oraz wysłanie ataku do wioski", self.coordinateXvillage, "|",
+              self.coordinateYvillage, "z wioski numer:", self.number_village)
         while hour != datetime.now().strftime("%H:%M"):
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
             self.sleep(60)
         self.bot.signIn(self.username, self.password, self.world)
         self.bot.sendAutoAttack(self.world, self.number_village, self.coordinateXvillage, self.coordinateYvillage,
@@ -960,38 +755,14 @@ class MyThread4(QThread):  # todo klasa odpowiedzialna za automatyczne wybranie 
             print("Atak został wysłany do wioski:", self.coordinateXvillage, self.coordinateYvillage)
             print("*************************************************************")
         self.bot.closeWebDriver()
-=======
-            time.sleep(60)
-
-        self.bot.signIn(self.username, self.password, self.world)
-        self.bot.sendAutoAttack(self.world, self.number_village, self.coordinateXvillage, self.coordinateYvillage,
-                                self.pikeman, self.swordfish, self.axeman, self.scout, self.lightcavalery,
-=======
-            time.sleep(60)
-
-        self.bot.signIn(self.username, self.password, self.world)
-        self.bot.sendAutoAttack(self.world, self.number_village, self.coordinateXvillage, self.coordinateYvillage,
-                                self.pikeman, self.swordfish, self.axeman, self.scout, self.lightcavalery,
->>>>>>> parent of ad730fc... Aktualizacja 09.09.2020
-=======
-            time.sleep(60)
-
-        self.bot.signIn(self.username, self.password, self.world)
-        self.bot.sendAutoAttack(self.world, self.number_village, self.coordinateXvillage, self.coordinateYvillage,
-                                self.pikeman, self.swordfish, self.axeman, self.scout, self.lightcavalery,
->>>>>>> parent of ad730fc... Aktualizacja 09.09.2020
-                                self.heavycavalery, self.ram, self.catapult, self.knight, self.nobleman)
-        self.bot.wedge(self.hour, self.minute, self.second, self.millisecond)
->>>>>>> parent of ad730fc... Aktualizacja 09.09.2020
         self.bot.browser = None
 
-    # def __del__(self):
+    #def __del__(self):
     #    self.exiting = True
-    #   self.wait()
-    # self.stop()
-    # self.quit()
-    # self.terminate()
-
+     #   self.wait()
+        #self.stop()
+        #self.quit()
+        #self.terminate()
 
 class MyThread5(QThread):  # todo klasa odpowiedzialna za wywołanie klina
     def __init__(self, bot, username, password, world, parent=None):
@@ -1011,7 +782,7 @@ class MyThread5(QThread):  # todo klasa odpowiedzialna za wywołanie klina
             print("Program zasypia na:", time1)
             time1 = time.strptime(time1, '%H:%M:%S')
             time1 = time1.tm_hour * 3600 + time1.tm_min * 60 + time1.tm_sec + 10
-            # time.sleep(time1)
+            #time.sleep(time1)
             self.sleep(time1)
         self.exiting = True
         # self.exit()
@@ -1025,20 +796,11 @@ class ParametersPlemiona:  # todo klasa w której analizowane są parametry w  p
         options = webdriver.ChromeOptions()
         options.add_argument('window-position=2500,100')
         self.browser = webdriver.Chrome(options=options)
-        # self.browser.set_window_position(2000, 200)
+        #self.browser.set_window_position(2000, 200)
         self.browser.get('https://www.plemiona.pl/')
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
         # self.browser.execute_script("window.open()")
 
         # print(self.browser.current_window_handle)
-=======
->>>>>>> parent of ad730fc... Aktualizacja 09.09.2020
-=======
->>>>>>> parent of ad730fc... Aktualizacja 09.09.2020
-=======
->>>>>>> parent of ad730fc... Aktualizacja 09.09.2020
         # time.sleep(1)
 
         usernameInput = self.browser.find_elements_by_css_selector('input')[1]
@@ -1057,17 +819,8 @@ class ParametersPlemiona:  # todo klasa w której analizowane są parametry w  p
         # worldInput = self.browser.find_element(By.XPATH,"/html/body/div[3]/div[4]/div[10]/div[3]/div[2]/div[1]/a[3]/span")
         # worldInput = self.browser.find_element(By.XPATH,"//a[@href='/page/play/pl152']")
         self.browser.get('https://www.plemiona.pl/' + 'page/play/pl' + world)
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
         time.sleep(1)
         # self.browser.execute_script("javascript: $(document).ready(function(){setInterval(function(){const e=new Date(Math.round(Timing.getCurrentServerTime()));var t=e.toLocaleTimeString()+':'+Math.floor(e.getMilliseconds()/100);e<10&&(t=0),$('#serverDate').text(t),$('#serverDate').attr('style','font-size: 10px;')},50)});")
-=======
->>>>>>> parent of ad730fc... Aktualizacja 09.09.2020
-=======
->>>>>>> parent of ad730fc... Aktualizacja 09.09.2020
-=======
->>>>>>> parent of ad730fc... Aktualizacja 09.09.2020
         try:
             self.browser.find_element_by_id('serverTime')
         except NoSuchElementException:
@@ -1086,39 +839,28 @@ class ParametersPlemiona:  # todo klasa w której analizowane są parametry w  p
         '''
 
     def sendAutoAttack(self, world, number_village, coordinateXvillage, coordinateYvillage, pikeman, swordfish, axeman,
-                       scout, lightcavalery, heavycavalery, ram, catapult, knight, nobleman):
+                       scout, lightcavalery, heavycavalery, ram, catapult, knight, nobleman, checkboxallarmy):
         try:
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
             self.browser.get(
                 'https://pl' + world + '.plemiona.pl' + '/game.php?village=' + number_village + '&screen=place')
-=======
-            self.browser.get('https://pl' + world + '.plemiona.pl' + '/game.php?village=n' + number_village + '&screen=place')
->>>>>>> parent of ad730fc... Aktualizacja 09.09.2020
-=======
-            self.browser.get('https://pl' + world + '.plemiona.pl' + '/game.php?village=n' + number_village + '&screen=place')
->>>>>>> parent of ad730fc... Aktualizacja 09.09.2020
-=======
-            self.browser.get('https://pl' + world + '.plemiona.pl' + '/game.php?village=n' + number_village + '&screen=place')
->>>>>>> parent of ad730fc... Aktualizacja 09.09.2020
             time.sleep(1)
             self.browser.find_element_by_name('input').send_keys(coordinateXvillage + coordinateYvillage)
-            self.browser.find_element_by_id('unit_input_spear').send_keys(pikeman)
-            self.browser.find_element_by_id('unit_input_sword').send_keys(swordfish)
-            self.browser.find_element_by_id('unit_input_axe').send_keys(axeman)
-            self.browser.find_element_by_id('unit_input_spy').send_keys(scout)
-            self.browser.find_element_by_id('unit_input_light').send_keys(lightcavalery)
-            self.browser.find_element_by_id('unit_input_heavy').send_keys(heavycavalery)
-            self.browser.find_element_by_id('unit_input_ram').send_keys(ram)
-            self.browser.find_element_by_id('unit_input_catapult').send_keys(catapult)
-            self.browser.find_element_by_id('unit_input_knight').send_keys(knight)
-            self.browser.find_element_by_id('unit_input_snob').send_keys(nobleman)
+            if (checkboxallarmy == False):
+                self.browser.find_element_by_id('unit_input_spear').send_keys(pikeman)
+                self.browser.find_element_by_id('unit_input_sword').send_keys(swordfish)
+                self.browser.find_element_by_id('unit_input_axe').send_keys(axeman)
+                self.browser.find_element_by_id('unit_input_spy').send_keys(scout)
+                self.browser.find_element_by_id('unit_input_light').send_keys(lightcavalery)
+                self.browser.find_element_by_id('unit_input_heavy').send_keys(heavycavalery)
+                self.browser.find_element_by_id('unit_input_ram').send_keys(ram)
+                self.browser.find_element_by_id('unit_input_catapult').send_keys(catapult)
+                self.browser.find_element_by_id('unit_input_knight').send_keys(knight)
+                self.browser.find_element_by_id('unit_input_snob').send_keys(nobleman)
+            else:
+                self.browser.find_element_by_id('selectAllUnits').click()
+
             self.browser.find_element_by_id('target_attack').click()
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-            # print("Atak został wysłany do wioski:", coordinateXvillage, coordinateYvillage)
+            #print("Atak został wysłany do wioski:", coordinateXvillage, coordinateYvillage)
 
         except NoSuchElementException:
             print("Brak elementu, wprowadź dane poprawnie")
@@ -1135,27 +877,6 @@ class ParametersPlemiona:  # todo klasa w której analizowane są parametry w  p
             return True
             # time.sleep(1)
         # self.browser.find_element_by_id('troop_confirm_go').click()
-=======
-        except NoSuchElementException:
-            print("Brak elementu, wprowadź dane poprawnie")
-
-    def getBackArmy(self, world, number_village):
-        self.browser.get('https://pl' + world + '.plemiona.pl' + '/game.php?village=n' + number_village + '&screen=place')
->>>>>>> parent of ad730fc... Aktualizacja 09.09.2020
-=======
-        except NoSuchElementException:
-            print("Brak elementu, wprowadź dane poprawnie")
-
-    def getBackArmy(self, world, number_village):
-        self.browser.get('https://pl' + world + '.plemiona.pl' + '/game.php?village=n' + number_village + '&screen=place')
->>>>>>> parent of ad730fc... Aktualizacja 09.09.2020
-=======
-        except NoSuchElementException:
-            print("Brak elementu, wprowadź dane poprawnie")
-
-    def getBackArmy(self, world, number_village):
-        self.browser.get('https://pl' + world + '.plemiona.pl' + '/game.php?village=n' + number_village + '&screen=place')
->>>>>>> parent of ad730fc... Aktualizacja 09.09.2020
 
     def getTimeAttack(self):
         try:
@@ -1164,9 +885,8 @@ class ParametersPlemiona:  # todo klasa w której analizowane są parametry w  p
                 text = timer.text
                 if text is not None:
                     textlength = len(text)
-                    hour = text[textlength - 8] + text[textlength - 7] + text[textlength - 6] + text[textlength - 5] + \
-                           text[
-                               textlength - 4] + text[textlength - 3] + text[textlength - 2] + text[textlength - 1]
+                    hour = text[textlength - 8] + text[textlength - 7] + text[textlength - 6] + text[textlength - 5] + text[
+                        textlength - 4] + text[textlength - 3] + text[textlength - 2] + text[textlength - 1]
                     return hour
                 else:
                     print("Brak elementu - relative_time")
@@ -1177,19 +897,7 @@ class ParametersPlemiona:  # todo klasa w której analizowane są parametry w  p
 
     def getTime(self):
         try:
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
             # self.browser.find_element_by_id('serverTime')
-=======
-            self.browser.find_element_by_id('serverTime')
->>>>>>> parent of ad730fc... Aktualizacja 09.09.2020
-=======
-            self.browser.find_element_by_id('serverTime')
->>>>>>> parent of ad730fc... Aktualizacja 09.09.2020
-=======
-            self.browser.find_element_by_id('serverTime')
->>>>>>> parent of ad730fc... Aktualizacja 09.09.2020
             timer = self.browser.find_element_by_id('serverTime')
             return timer.text
         except NoSuchElementException:
@@ -1207,14 +915,12 @@ class ParametersPlemiona:  # todo klasa w której analizowane są parametry w  p
             if self.getTimeAttack() == hour2:
                 time.sleep(mili)
                 self.browser.find_element_by_id('troop_confirm_go').click()
-<<<<<<< HEAD
-<<<<<<< HEAD
+                print("Wysłano atak", hour2, millisecond)
                 action = False
                 return True
             if not self.getTimeAttack():
                 action = False
 
-<<<<<<< HEAD
     def writeArmyToExcel(self, world):
         self.browser.get('https://pl' + world + '.plemiona.pl' + '/game.php?screen=ally&mode=members_defense')
         time.sleep(0.1)
@@ -1352,14 +1058,14 @@ class ParametersPlemiona:  # todo klasa w której analizowane są parametry w  p
                 y += 11
                 time.sleep(5)
             return str(timee)
-            # //*[@id="scavenge_screen"]/div/div[2]/div[1]/div[3]/div/div[2]/a[1]
-            # //*[@id="scavenge_screen"]/div/div[2]/div[2]/div[3]/div/div[2]/a[1]
-            # //*[@id="scavenge_screen"]/div/div[2]/div[3]/div[3]/div/div[2]/a[1]
-            # //*[@id="scavenge_screen"]/div/div[2]/div[4]/div[3]/div/div[2]/a[1]
+                # //*[@id="scavenge_screen"]/div/div[2]/div[1]/div[3]/div/div[2]/a[1]
+                # //*[@id="scavenge_screen"]/div/div[2]/div[2]/div[3]/div/div[2]/a[1]
+                # //*[@id="scavenge_screen"]/div/div[2]/div[3]/div[3]/div/div[2]/a[1]
+                # //*[@id="scavenge_screen"]/div/div[2]/div[4]/div[3]/div/div[2]/a[1]
         except NoSuchElementException:
             print("Brak przeglądu placu")
             return "Brak zalogowania"
-
+        
         '''
         # 0,557 0,231 0,115 0,077
         for i in tab_nick:
@@ -1373,18 +1079,8 @@ class ParametersPlemiona:  # todo klasa w której analizowane są parametry w  p
             print("text")
         '''
 
-=======
->>>>>>> parent of ad730fc... Aktualizacja 09.09.2020
 
 # game.php?village=7124&screen=am_farm
-=======
-                action = False
-
->>>>>>> parent of ad730fc... Aktualizacja 09.09.2020
-=======
-                action = False
-
->>>>>>> parent of ad730fc... Aktualizacja 09.09.2020
 
 # bot.signin()
 app = QApplication(sys.argv)

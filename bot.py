@@ -21,6 +21,7 @@ from QLed import QLed
 from selenium.webdriver.support.wait import WebDriverWait
 
 import pandas as pd
+
 '''
 time1 ="1:32:21"
 time1 = time.strptime(time1, '%H:%M:%S')
@@ -28,6 +29,8 @@ print(time1.tm_hour)
 print(time1.tm_min)
 print(time1.tm_sec)
 '''
+
+
 class PlemionaBot(QMainWindow):  # todo klasa odpowiada za wywołąnie wszystkich elementów okna MainWindow
     def __init__(self):
         super(PlemionaBot, self).__init__()
@@ -150,7 +153,7 @@ class Widget(QWidget):  # todo ustawianie ukąłdu widgetów oraz ich funkcji
         box.addWidget(self.time_Box, 2, 0, 1, 10)
         box.addWidget(self.otherbutton_Box, 3, 0, 1, 10)
         box.addWidget(self.sendautoattack_Box, 2, 10, 10, 20)
-        #box.addWidget(self.farm_Box, 0, 18, 2, 12)
+        # box.addWidget(self.farm_Box, 0, 18, 2, 12)
 
         self.setLayout(box)
 
@@ -318,7 +321,7 @@ class Widget(QWidget):  # todo ustawianie ukąłdu widgetów oraz ich funkcji
     def buttonSendAutoAttackFromExcel(self):
         excel_file = 'plemiona.xlsx'
         data_excel = pd.read_excel(excel_file, sheet_name=0)
-        #print(data_excel)
+        # print(data_excel)
         data_excel = data_excel.fillna(0)
         # print(data_excel)
         rows = data_excel.shape[0]
@@ -338,7 +341,7 @@ class Widget(QWidget):  # todo ustawianie ukąłdu widgetów oraz ich funkcji
             return
 
         for i in range(rows):
-            #print(i)
+            # print(i)
             # date = data_excel.at[i, 'Action date'].strftime("%m/%d/%Y, %H:%M:%S.%f")[:-3]
             # print(date)
             hour = str(data_excel.at[i, 'Action date'].strftime("%H"))
@@ -757,12 +760,13 @@ class MyThread4(QThread):  # todo klasa odpowiedzialna za automatyczne wybranie 
         self.bot.closeWebDriver()
         self.bot.browser = None
 
-    #def __del__(self):
+    # def __del__(self):
     #    self.exiting = True
-     #   self.wait()
-        #self.stop()
-        #self.quit()
-        #self.terminate()
+    #   self.wait()
+    # self.stop()
+    # self.quit()
+    # self.terminate()
+
 
 class MyThread5(QThread):  # todo klasa odpowiedzialna za wywołanie klina
     def __init__(self, bot, username, password, world, parent=None):
@@ -782,7 +786,7 @@ class MyThread5(QThread):  # todo klasa odpowiedzialna za wywołanie klina
             print("Program zasypia na:", time1)
             time1 = time.strptime(time1, '%H:%M:%S')
             time1 = time1.tm_hour * 3600 + time1.tm_min * 60 + time1.tm_sec + 10
-            #time.sleep(time1)
+            # time.sleep(time1)
             self.sleep(time1)
         self.exiting = True
         # self.exit()
@@ -796,7 +800,7 @@ class ParametersPlemiona:  # todo klasa w której analizowane są parametry w  p
         options = webdriver.ChromeOptions()
         options.add_argument('window-position=2500,100')
         self.browser = webdriver.Chrome(options=options)
-        #self.browser.set_window_position(2000, 200)
+        # self.browser.set_window_position(2000, 200)
         self.browser.get('https://www.plemiona.pl/')
         # self.browser.execute_script("window.open()")
 
@@ -860,7 +864,7 @@ class ParametersPlemiona:  # todo klasa w której analizowane są parametry w  p
                 self.browser.find_element_by_id('selectAllUnits').click()
 
             self.browser.find_element_by_id('target_attack').click()
-            #print("Atak został wysłany do wioski:", coordinateXvillage, coordinateYvillage)
+            # print("Atak został wysłany do wioski:", coordinateXvillage, coordinateYvillage)
 
         except NoSuchElementException:
             print("Brak elementu, wprowadź dane poprawnie")
@@ -885,8 +889,9 @@ class ParametersPlemiona:  # todo klasa w której analizowane są parametry w  p
                 text = timer.text
                 if text is not None:
                     textlength = len(text)
-                    hour = text[textlength - 8] + text[textlength - 7] + text[textlength - 6] + text[textlength - 5] + text[
-                        textlength - 4] + text[textlength - 3] + text[textlength - 2] + text[textlength - 1]
+                    hour = text[textlength - 8] + text[textlength - 7] + text[textlength - 6] + text[textlength - 5] + \
+                           text[
+                               textlength - 4] + text[textlength - 3] + text[textlength - 2] + text[textlength - 1]
                     return hour
                 else:
                     print("Brak elementu - relative_time")
@@ -1058,14 +1063,14 @@ class ParametersPlemiona:  # todo klasa w której analizowane są parametry w  p
                 y += 11
                 time.sleep(5)
             return str(timee)
-                # //*[@id="scavenge_screen"]/div/div[2]/div[1]/div[3]/div/div[2]/a[1]
-                # //*[@id="scavenge_screen"]/div/div[2]/div[2]/div[3]/div/div[2]/a[1]
-                # //*[@id="scavenge_screen"]/div/div[2]/div[3]/div[3]/div/div[2]/a[1]
-                # //*[@id="scavenge_screen"]/div/div[2]/div[4]/div[3]/div/div[2]/a[1]
+            # //*[@id="scavenge_screen"]/div/div[2]/div[1]/div[3]/div/div[2]/a[1]
+            # //*[@id="scavenge_screen"]/div/div[2]/div[2]/div[3]/div/div[2]/a[1]
+            # //*[@id="scavenge_screen"]/div/div[2]/div[3]/div[3]/div/div[2]/a[1]
+            # //*[@id="scavenge_screen"]/div/div[2]/div[4]/div[3]/div/div[2]/a[1]
         except NoSuchElementException:
             print("Brak przeglądu placu")
             return "Brak zalogowania"
-        
+
         '''
         # 0,557 0,231 0,115 0,077
         for i in tab_nick:
